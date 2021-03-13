@@ -1,0 +1,151 @@
+﻿## IDEA快捷键整理
+
+一.查找文件
+
+1.双击shift 
+    在项目的所有目录查找
+2.ctrl+f 
+    当前文件查找特定内容 
+3.ctrl+shift+f
+    当前项目查找包含特定内容的文件
+4.ctrl+n 
+    查找类 再次按包含jar内文件
+5.ctrl+shift+n
+    查找文件 再次按包含jar内文件
+5.ctrl+shift+alt+n
+    查找方法 再次按包含jar内文件
+6.ctrl+e 
+    最近的文件
+7.alt+F7
+    找到你的函数或者变量或者类的所有引用到的地方
+8.ctrl+f12
+    显示类方法
+9.Ctrl+G
+    跳转到指定行
+10.Ctrl+Alt+O
+    优化导入的类和包
+11.Ctrl+Shift+Space
+    自动补全代码
+12.Ctrl+Alt+B
+    跳转到方法实现处
+13. 定位到下一个或上一个错误 F2 / Shift + F2
+14.折叠代码 ctrl + +/ ctrl + -
+
+二.编辑文件
+
+1.shift+enter
+    另起一行
+2.ctrl+r
+    当前文件替换特定内容
+3.ctrl+shift+r
+    当前项目替换特定内容
+4.shift+F6
+    重命名类、方法、变量等等
+5.ctrl+d
+    复制当前行到下一行
+6.ctrl+shift+z
+    取消撤销
+7.ctrl+k
+    提交代码到SVN,GIT...
+8.ctrl+t
+    更新代码
+9.alt+insert
+    在类中使用:可以自动生成构造器、getter/setter等等常用方法
+    在项目目录上使用：可用于新建各种文件。
+10.ctrl+alt+L
+    自动格式化代码
+11. alt+ctrl+insert
+    在类中新建文件。。。
+12.f5
+    复制当前文件
+
+
+无处不在的跳动
+
+    1.项目跳转 ctrl+alt+}  ctrl+alt+{
+    
+    2. 查找快捷键 Help-> Find Action ctrl+shift+a
+
+    3. 查找最近文件 Recent Files ctrl+e
+
+    4. 上一個编辑的位置 Last edit location ctrl+shift+BackSpace 
+        下一个编辑位置 next edit location ctrl+shift+\ 自定义
+    
+    5. 上一个浏览位置 back ctrl+alt+ 左箭头
+        下一个浏览的位置 forward ctrl+alt+ 右箭头
+    
+    6. 书签操作
+
+        新建书签 bookmarks f11 取消书签再次按f11
+        新建带数字编号的书签 ctrl+f11 取消书签再次按f11
+        跳转书签 ctrl+标签数字
+    
+    7. 收藏位置或文件
+
+        调出收藏列表 favorites alt+2
+        收藏 add to favorites  alt+shift+f
+        光标在类上收藏类 在方法名上收藏方法
+
+    8. 文件内光标跳转 插件 emacsIDEAs
+
+        AceJumpWord 很神奇
+    
+    9. 编辑区和文件区的跳转
+
+     跳转到文件区 alt+1 跳转到编辑区 esc
+
+    10. 跳转到单词结尾 Move Caret to Next Word ctrl+右箭头
+     跳转到单词开头 Move Caret to Previous Word ctrl+左箭头
+
+    11. live Templates
+
+        设置模板代码 快捷生成
+
+    12. postfix
+
+    13. 智能提示 show intention Actions alt+enter
+
+    14. 批量修改变量名 shift+f6
+
+    15. 版本控制相关
+
+         撤销修改 revert ctrl+alt+z
+         历史记录 local history本地修改记录 可以提交修改 查看修改记录
+         查看文件修改位置 ctrl+alt+shift+向上箭头 、向下箭头
+
+    16.调试
+
+        添加断点 ctrl+f8 取消断点 ctrl+f8
+        f8下一步  f9下一断点 
+        查看所有断点 没有断点的地方 按shift+ctrl+f8  有断点的地方点击两次
+        添加条件断点 shift+ctrl+f8
+        断点表达式计算 停在断点处时 Evaluate Expression alt+f8 输入表达式计算结果
+        跳到指定行 run to Cursor alt+f9
+    
+    17. 文件操作
+     ctrl+shift+v调出剪切板内容 可以看到最近复制的内容 选择粘贴
+
+    18.结构图 
+     查看当前class的field method大纲 File Structure ctrl+f12
+     查看maven依赖图 show Dependencies 在pom.xml文件内  ctrl+alt+shift+u
+     查看类继承图 在类内 ctrl+alt+shift+u 拓扑图  ctrl+h 继承关系
+     查看方法调用关系 Call Hierarchy  ctrl+alt+h;
+
+    19. 列操作
+        大小写转换Toggle case  ctrl+shift+u
+        选择相同代码位置 select all Occurrences ctrl+shift+alt+j
+
+
+使用技巧
+
+1. 编译相关
+    1.1 忽略编译目录/文件
+        Build、Execution、Deployment > Compiler > Excludes
+    1.2 设置编译时 heap大小 编译参数
+        Build、Execution、Deployment > Compiler 
+    1.3 设置编译 jdk版本
+        Build、Execution、Deployment > Compiler > Java Compiler
+    1.4 在 IntelliJ IDEA 中，编译方式有 3 种，分别为：
+        Build：对选定的目标（Project 或 Module）进行编译，但只编译修改过的文件，没有修改过的文件则不会进行编译。
+        Recompile：对选定的目标（Java 类文件），进行强制性编译，不管目标是否是被修改过。
+        Rebuild：对选定的目标（Project），进行强制性编译，不管目标是否是被修改过，由于 Rebuild 的目标只有 Project，因此每次 Rebuild 花的时间都比较长。
