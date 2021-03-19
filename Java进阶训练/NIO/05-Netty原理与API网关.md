@@ -1,4 +1,4 @@
-# 05-Netty原理与API网关
+# Netty原理与API网关
 
 ## 高性能
 
@@ -47,7 +47,7 @@ Transfer/sec:     16.11MB
 
 * 1.容量：清楚应用的最大负载，吞吐量、并发量等。
 
-> 每天有86400秒，taobao每天有3000万TPS，美团滴滴大概1000万。支付宝在双十一最大的并发，前几分大概54万TPS每秒。三大云服务供应商：AWS， 微软，Aliyun。
+> 每天有86400秒，taobao每天有3000万TPS，美团滴滴大概1000万。支付宝在双十一最大的并发，前几分大概50万左右TPS每秒。三大云服务供应商：AWS，微软，Aliyun。
 
 * 2.爆炸半径：bug造成的影响。应对方式：应用拆分，微服务。
 
@@ -63,7 +63,7 @@ Transfer/sec:     16.11MB
 
 ### 事件处理机制
 
-![事件处理机制](./事件处理机制.png)
+![事件处理机制](https://note.youdao.com/yws/api/personal/file/WEB0d459e4573ef19bdf65fa65df12607b0?method=download&shareKey=16bcb824e18265cc608717938f41dd40)
 
 事件处理机制的流程：
 
@@ -71,27 +71,53 @@ Transfer/sec:     16.11MB
 
 ### 从事件处理机制到Reactor模型
 
-![Reactor模型](./Reactor模型.png)
+![Reactor模型](https://note.youdao.com/yws/api/personal/file/WEBcb2230c0600ab6385be1b39ca1a595a6?method=download&shareKey=ba41741adf572f4bcc7766de9967ad55)
 
-Reactor模式首先是事件驱动的，有一个或者多个并发输入源，有一个ServiceHandler和多个EventHandlers。
+Reactor模式是一种典型的事件驱动的编程模型，首先是由事件驱动的，有一个或者多个并发输入源，有一个ServiceHandler和多个EventHandlers。
 ServiceHandler负责将客户端请求hand住，然后将请求多路复用的分发给相应的Event Handler。ServiceHandler只负责一件事更高效。
 
 ### 从Reactor模型到Netty NIO
 
-![NettyNIO模型](./NettyNIO模型.png)
+Reator模型的三种模式：单线程模式、多线程模式、主从多线程模式。
 
-Netty有三种处理模型，上面是最复杂的一种。
+**单线程模式**
+
+所有的I/O操作都是在同一个NIO线程上面完成。NIO线程的职责如下：作为NIO服务端，接收客户端的TCP连接；作为NIO客户端，像服务端发起TCP连接；读取通信对端的请求或应答消息；向通信对端发送消息请求或应答消息。
+
+适合小容量的应用场景，对于高并发的应用场景不适合，原因：一个NIO线程性能上无法支撑成千上百的链路；当NIO线程负载过重后，处理会变慢，会导致客户端连接超时（超时之后往往会重发）；可靠性差，单线程出现问题会导致系统不可用。
+
+**多线程模式**
+
+多线程模式与单线程模式相比较，就是有一组NIO线程来处理I/O操作。
+
+特点：
+
+* 有专门一个NIO线程（Acceptor线程）用户监听服务端，接收客户端的TCP连接请求。
+* 网络I/O操作，读写等都由一个NIO的线程池负责，线程池的实现可以包含一个任务队列和N个可用线程，由这些NIO线程负责消息的读取、编解码和发送。
+* 一个NIO线程可以同时处理N条链路，但是一个链路只对应一个NIO线程，防止发生并发操作问题。
+
+大部分场景下，多线程模式都可以满足性能需求。对于个别场景，比如服务端需要对客户端握手进行安全认证，但是认证本身比较消耗性能，那么单个Acceptor线程就可能存在性能不足的问题。
+
+**主从多线程模式**
+
+与多线程相比，主从多线程将Reactor线程拆分了mainReactor和subReactor两个部分，mainReactor线程池负责接收连接并分发给Acceptor连接建立，建立连接后再分发给subReactor线程池。其中mainReactor一般只有一个，subReactor的数量，可以根据 CPU 的核数来灵活设置。
+
+![NettyNIO模型](https://note.youdao.com/yws/api/personal/file/WEB895059f545dd86ddcf167cf5b4bdcb17?method=download&shareKey=2200c77c7e926a0f824ecf29ccb25224)
+
+Netty三种模式都支持，上面是最复杂的一种。
 
 Boss EventLoopGroup：负责接收客户端请求，再交给Worker EventloopGroup处理，数量较少。
 Worker EventLoopGroup：负责处理客户端请求。
 
 ### Netty运行原理
 
-EventLoop：可以理解成单线程循环。
+![Netty运行流程](https://note.youdao.com/yws/api/personal/file/WEBe7f61684aaf01a92b4afaae33046a9bf?method=download&shareKey=a971016bd0f8d0b385adce6f834e60d5)
+
+TODO
 
 ### 关键对象
 
-![Netty的关键对象.png](./Netty的关键对象.png)
+![Netty的关键对象.png](https://note.youdao.com/yws/api/personal/file/WEBde6f20621419b0f03d299f70b2ac2d5c?method=download&shareKey=f78b38c62f22f1d4c135e4c7aa2f9694)
 
 * Bootstrap：Netty的启动器，有两个ServerBootstrap和Bootstrap，一个用于服务端一个用于客户端。
 * EventLoopGroup：一组EventLoop，如果将EventLoop理解成线程，这个就是线程池。
@@ -103,13 +129,33 @@ EventLoop：可以理解成单线程循环。
 
 ### ChannelPipeline
 
+处理器链，负责ChannelHandler的管理和调度。
+
+特征：
+
+* 支持运行时动态添加或删除Handler，使用示例：在业务高峰期动态添加系统的拥塞保护Headler，高峰期过后再动态删除。
+* ChannelPipeline是线程安全的，但是ChannelHandler不是线程安全的。
+
+### EventLoop
+
 ### Event & Handler
 
-入站事件：
+**Event**
 
-出站事件：
+Netty中的事件分为inbound事件和outbound事件。
 
-Netty应用的组成：网络事件，应用逻辑事件，事件处理程序
+inbound事件一般由I/O线程触发，比如链路建立、链路关闭、读事件、异常通知事件等。
+outbound事件一般由用户主动发起的网络I/O操作，比如打开链接、关闭连接、消息发送等事件。
+
+**Handler**
+
+Handler是事件处理的接口，一般有：
+
+* ChannelHandler
+* ChannelOutboundHandler
+* ChannelInboundHandler
+* ChannelInboundHandlerAdapter 适配器（空实现，需要继承使用）
+* ChannelOutboundHandlerAdapter 适配器（空实现，需要继承使用）
 
 ## Netty网络程序优化
 
@@ -131,18 +177,19 @@ TCP本身没有粘包和拆包的问题。
 
 **Nagle算法**
 
-Nagle算法：当发送数据的缓冲区满了或者超过200ms了，就将数据发送出去，有点组提交的感觉。Nagle算法的优化条件是缓冲区满，达到超时。Nagle算法的目的是优化单个小的包的发送。
+Nagle算法：当发送数据的缓冲区满了或者超过200ms（默认）了，就将数据发送出去，有点组提交的感觉。Nagle算法的优化条件是缓冲区满，达到超时。Nagle算法的目的是优化单个小的包的发送。
 
 怎么避免这个优化：
 
 * 可以将操作系统的这个优化关闭，当并发高的时候这个优化收益很大。
 * 修改最大的传输单元（MTU: Maxitum Transmission Unit）和最大分段大小（MSS: Maxitum Segment Size）。最大传输单元一般1500byte；最大分段大小tcp下一般1460byte。
 
-> 在代码中调用send()方法发生数据，这个操作只是调用操作系统底层的发生接口，最终发不发还要由操作系统决定。
+> 为什么是1460byte？因为一个tcp数据包，还好包含tcp头等信息差不多40byte。
+> 在代码中调用send()方法发生数据，这个操作只是调用操作系统底层的发生接口，最终发不发还要由操作系统决定。接收数据也是一样。
 
 ### 连接优化
 
-![TCP三次握手四次挥手](./TCP三次握手四次挥手.png)
+![TCP三次握手四次挥手](https://note.youdao.com/yws/api/personal/file/WEB5922f9c2f656b1527a56478747fbca01?method=download&shareKey=31857591c16b8eb0b28f2cfd094787e5)
 
 TCP三次握手，四次挥手。
 
@@ -151,7 +198,7 @@ TCP三次握手，四次挥手。
 解决方式：
 
 * 降低断开连接的等待周期，MSL的值。
-* 开启端口复用功能，可以复用状态是TIME-WAIT的端口。
+* 开启端口复用功能，可以复用状态是TIME_WAIT的端口。
 
 ### Netty优化
 
@@ -179,7 +226,8 @@ TCP三次握手，四次挥手。
   减少内核态和用户态的copy，使用DirectBuffer与HeapBuffer直接操作内存。
 
   > DirectBuffer: 直接内存，不需要内核态和用户态的copy；HeapBuffer: 使用堆内存，还需要内核态和用户态的copy。
-  > Netty自己建立来类似GC的内存管理机制，每次使用后清空，可以复用。
+  > Netty自己建立了类似GC的内存管理机制，每次使用后清空，可以复用。
+
 * 6.其他优化
 
   * IoRatio: IO操作和非IO操作占用CPU时间的比例，默认是50:50。
@@ -213,3 +261,18 @@ Netflix开源的API网关系统，主要设计目标是动态路由、监控、�
 * Spring Cloud Gateway
 
 底层基于WebFlux，WebFlux基于Netty Reactor。功能更强大。
+
+### 动手实现API网关
+
+**架构设计：**
+
+* 设计：技术复杂度与业务复杂度
+  分析问题的本质，心态问题？管理问题？技术问题？业务问题？  
+* 抽象：概念理清，命名正确
+  模块之间的命名，正确的命名形成自己内部的DSL。
+* 组合：组件之间的相互关系
+
+## Tips
+
+* 早期使用`select 1`进行数据库的探活，JDBC4以后驱动底层有java.sql.Connection#isValid方法可以检测连接是否有效。
+* 一般外部的流量进来才需要走网关，内部的流量请求没必要走网关。

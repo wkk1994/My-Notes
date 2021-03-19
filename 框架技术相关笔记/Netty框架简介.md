@@ -53,34 +53,34 @@ Reactor模式称为响应器模式，核心流程：注册事件，扫描事件�
 
 * 单线程模式
 
-netty中使用Reactor单线程模式：
+  netty中使用Reactor单线程模式：
 
-```java
-EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-ServerBootstrap serverBootstrap = new ServerBootstrap();
-serverBootstrap.group(bossGroup);
-```
+  ```java
+  EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+  ServerBootstrap serverBootstrap = new ServerBootstrap();
+  serverBootstrap.group(bossGroup);
+  ```
 
 * 多线程模式
 
-netty中使用Reactor多线程模式：
+  netty中使用Reactor多线程模式：
 
-```java
-EventLoopGroup bossGroup = new NioEventLoopGroup();
-ServerBootstrap serverBootstrap = new ServerBootstrap();
-serverBootstrap.group(bossGroup);
-```
+  ```java
+  EventLoopGroup bossGroup = new NioEventLoopGroup();
+  ServerBootstrap serverBootstrap = new ServerBootstrap();
+  serverBootstrap.group(bossGroup);
+  ```
 
 * 主从多线程模式
 
-netty中使用Reactor主从多线程模式：
+  netty中使用Reactor主从多线程模式：
 
-```java
-EventLoopGroup bossGroup = new NioEventLoopGroup();
-EventLoopGroup workerGroup = new NioEventLoopGroup();
-ServerBootstrap serverBootstrap = new ServerBootstrap();
-serverBootstrap.group(bossGroup, workerGroup);
-```
+  ```java
+  EventLoopGroup bossGroup = new NioEventLoopGroup();
+  EventLoopGroup workerGroup = new NioEventLoopGroup();
+  ServerBootstrap serverBootstrap = new ServerBootstrap();
+  serverBootstrap.group(bossGroup, workerGroup);
+  ```
 
 ## 粘包和半包（拆包）
 
@@ -91,6 +91,7 @@ serverBootstrap.group(bossGroup, workerGroup);
 
 对于发送端而言粘包和半包产生的现象就是，一个发送可能占用多个传输包，多个发送也可能占用一个传输包。
 对于接收端而言现象是，一个发送可能被多次接收，多个发送可能被一次接收。
+
 粘包的主要原因：
 
 * 发送方每次写入的数据远小于套接字缓冲区的大小，这样数据不会立即被发送出去。
