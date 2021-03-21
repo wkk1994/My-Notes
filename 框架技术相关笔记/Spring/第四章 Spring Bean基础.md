@@ -95,3 +95,83 @@ anDefinitionRegistry);
     代码示例：[ApiregistryBeanDefinitionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/ApiregistryBeanDefinitionDemo.java)
 
 > @Bean 和 @Service 名称相同的处理不同？使用@Bean注解声明两个名称相同的Bean，不会启动提示冲突报错，会进行覆盖；而使用@Service声明两个名称相同的Bean，会提示冲突报错。它们两个的处理逻辑不同。
+
+## Spring Bean实例化
+
+Spring Bean常见的实例化方式可以分为以下：
+
+* 常规方式
+  * 通过构造器实例化
+    配置方式：XML、Java 注解和 Java API。
+  * 通过静态工厂方法实例化
+    配置方式：XML 和 Java API
+  * 通过实例（Bean）工厂方法实例化
+    配置方式：XML和 Java API
+  * 通过FactoryBean实例化
+    配置方式：XML、Java 注解和 Java API
+  代码示例：[BeanInstantiationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanInstantiationDemo.java)
+
+* 特殊方式
+  * 通过 ServiceLoaderFactoryBean/ServiceListFactoryBean
+    配置方式：XML、Java 注解和 Java API
+  * 通过 AutowireCapableBeanFactory#createBean(java.lang.Class, int, boolean)
+  * 通过 BeanDefinitionRegistry#registerBeanDefinition(String,BeanDefinition)
+  代码示例：[SpecialBeanInstantiationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/SpecialBeanInstantiationDemo.java)
+
+## Spring Bean初始化
+
+Spring Beande初始化方式主要以下三种：
+
+* @PostConstruct标注的方式，在构造方法执行后执行。
+* 实现InitializingBean 接口的 afterPropertiesSet() 方法，在属性设置完成后执行。
+* 自定义初始化方法
+  * XML配置：`<bean init-method="initMethodName" ...>`
+  * Java注解：@Bean(initMethod="init")
+  * Java API: AbstractBeanDefinition#setInitMethodName(String)
+
+上面三者的执行顺序是：@PostConstruct > 实现InitializingBean接口 > 自定义初始化方法。
+
+代码示例：[BeanInitializationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanInitializationDemo.java)
+
+## Spring Bean的延迟加载
+
+Spring Bean的延迟加载的方式主要有：
+
+* XML 配置：`<bean lazy-init="true" ... />`；
+* Java 注解：@Lazy(true)。
+
+当Bean设置为延迟加载后，会在使用该Bean的时候才会去执行初始化，通常情况下只有Bean的方法或者字段被调用时才会触发初始化。
+
+通过方法`BeanFactory#getBeanProvider(java.lang.Class<T>)`获取对象时，对于懒加载的对象不会执行初始化，会在调用getObject方法时才执行初始化。
+
+## Spring Bean销毁
+
+Spring Bean销毁触发的方法主要有以下三种：
+
+* @PreDestroy 标注方法
+* 实现 DisposableBean 接口的 destroy() 方法
+* 自定义销毁方法
+  * XML 配置：`<bean destroy="destroy" ... /> `
+  * Java 注解：@Bean(destroy=”destroy”)
+  * Java API：AbstractBeanDefinition#setDestroyMethodName(String)
+
+销毁触发的执行顺序是：@PreDestroy > 实现 DisposableBean 接口 > 自定义销毁方法。
+
+代码示例：[BeanDestroyDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanDestroyDemo.java)
+
+## 垃圾回收 Spring Bean
+
+在ApplicationContext关闭之前，GC是不会回收Bean的，纵然显示的调用也是如此。而在ApplicationContext关闭之后，JVM会在垃圾回收周期中去回收掉Bean。
+
+## 面试题
+
+* 如何注册一个 Spring Bean？
+
+  通过 BeanDefinition 和外部单体对象来注册。
+  外部单体对象注册示例：[SingletonBeanRegistrationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/SingletonBeanRegistrationDemo.java)
+* 什么是 Spring BeanDefinition？
+
+  保存Spring Bean的各种元信息，并且可以通过setter/getter修改和获取Bean的元信息。
+
+* Spring 容器是怎样管理注册 Bean？
+  后续论述。
