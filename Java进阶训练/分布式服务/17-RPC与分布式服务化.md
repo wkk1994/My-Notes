@@ -1,4 +1,4 @@
-# 第 17 课 分布式服务-RPC与分布式服务化
+# 分布式服务-RPC与分布式服务化
 
 ## 1.RPC基本原理*
 
@@ -13,8 +13,6 @@ RPC(Remote Procedure Call): 远程过程调用。像调用本地方法一样调�
 
 RPC的简化版原理如下：
 
-核心是代理机制
-
 * 本地代理存根：Stub
 * 本地序列化反序列化
 * 网络通信
@@ -24,15 +22,17 @@ RPC的简化版原理如下：
 * 原路返回服务结果
 * 返回给本地调用方
 
-![RPC原理](./RPC原理.png)
+![RPC原理](https://note.youdao.com/yws/api/personal/file/WEBd8156a2a0c2593286eca1b75f332d92f?method=download&shareKey=2cc79d34b3af84b7f1b5fd7108e0299f)
+
+核心是代理机制
 
 **注意处理异常**
 
-> 现在所有的RPC的底层原理都是这个样子滴。
+> RPC的原理现在很成熟，基本都是一致的。
 
 #### 设计
 
-本地应用程序与远程应用程序，需要共享POJO实体类的定义和接口的定义。**注意这里是定义不是实现**
+本地应用程序与远程应用程序，需要共享POJO实体类的定义和接口的定义。**注意这里是定义不是实现，而且这个定义并不是实体的定义，而是内容和结构的定义。**
 
 在Java程序中，可以使用jar包共享POJO实体类和接口。是通过代码的方式共享定义。
 web service是使用SOAP定义POJO的实体类和接口，它使用的是xml的方式描述实体类和接口。
@@ -41,9 +41,9 @@ web service是使用SOAP定义POJO的实体类和接口，它使用的是xml的�
 
 代理的目的是在访问远程接口方法的定义时，让它通过网络去访问远程的目标方法。
 
-* 在Java里，代理可以选择动态代理，或者AOP实现
-* C#直接有远程代理
-* Flex可以使用动态方法和属性
+* 在Java里，代理可以选择动态代理，或者AOP实现；
+* C#直接有远程代理；
+* Flex可以使用动态方法和属性。
 
 #### 序列化
 
@@ -93,6 +93,8 @@ web service是使用SOAP定义POJO的实体类和接口，它使用的是xml的�
 * Hessian, Thrift, Protocol Buffer, gRPC
   现在互联网流行的技术，占用内存小。
 
+现在比较有发展前景的是gRPC。
+
 ## 3.如何设计一个RPC*
 
 ### 自己设计一个RPC
@@ -103,12 +105,14 @@ web service是使用SOAP定义POJO的实体类和接口，它使用的是xml的�
 * 动态代理 or AOP？
 * 序列化用什么？文本 or 二进制？
 * 基于TCP还是HTTP？
+* 服务端如何查找实现类
+* 异常处理
 
 ## 4.从RPC到分布式服务化
 
 ### 从RPC走向服务化->微服务架构
 
-* 多个相同的服务如何管理
+* 多个相同的服务不同的版本如何管理
 * 服务注册与发现机制
 * 如何负载均衡，路由等集群功能
 * 熔断、限流等治理能力
@@ -117,11 +121,10 @@ web service是使用SOAP定义POJO的实体类和接口，它使用的是xml的�
 
 **一个典型的分布式服务化架构**
 
-![分布式服务化架构](./分布式服务化架构.png)
+![分布式服务化架构](https://note.youdao.com/yws/api/personal/file/WEBbc88d01cb5513eb61ee6b86749f35786?method=download&shareKey=0906c6f0fa1a22dcd2bd195e76a75526)
 
 ## Tips
 
 * rest-API, JSON-API 也是RPC
 * websocket和http的关系，websocket是在http的上面进行流的传输，在http连接的上面进行了升级，升级之后的连接和http已经没有什么关系了。在传输的时候会提添加一个头部 http upgrade表示http要升级成websocket。
-* 柔性事务的本质是乐观锁。假设回滚是一个小概率事件。XA分布式事务是一个大事务。
-* 分布式事务的隔离级别：
+* dwr，非常强大，可以直接调用Java代码。
