@@ -1,0 +1,110 @@
+# Spring IoC依赖注入
+
+## 依赖注入的模式和类型
+
+### 依赖注入的模式
+
+* 手动模式：通过配置或者编程的方式，提前设置注入规则。
+  常见的方式：
+  * XML资源配置元信息；
+  * Java注解配置元信息；
+  * API配置元信息。开发中不常用。
+
+* 自动模式：实现方提供依赖自动关联的方式，按照内建的注入规则。
+  * Autowiring（自动绑定）：这是Spring开发者提出但是不推荐使用的方式。
+
+### 依赖注入的类型
+
+|依赖注入类型| 配置元数据举例|
+|--|--|--|
+|Setter方法| `<proeprty name="user" ref="userBean"/>`|
+|构造器| `<constructor|-arg name="user" ref="userBean" />`|
+|字段| @Autowired User user;|
+|方法| @Autowired public void user(User user) { ... }|
+|接口回调| class MyBean implements BeanFactoryAware { ... }|
+
+## 自动绑定（Autowiring）
+
+Spring IoC容器可以自动维护Bean之前的依赖关系，包括Bean和Bean之间的关系和Bean和资源之前的关系。
+
+Spring官方认为自动绑定有两个优点：
+
+* 1.自动绑定可以减少手动绑定时需要指定属性和构造参数的需要。
+* 2.自动绑定的属性可以跟随依赖的对象的更新而更新配置。（这一个看来不自动绑定的优势，而是Java引用传递的优势，Java中只有值传递，引用对象传递的是引用地址，这样对象属性更新时，保存这个引用指向的属性都会更新。）
+
+### 自动绑定（Autowiring）模式
+
+Spring IoC容器提供的自动绑定的模式可以通过注解类`org.springframework.beans.factory.annotation.Autowire`中查看，大致提供了四种自动绑定的模式：
+
+* no：默认值，未激活 Autowiring，需要手动指定依赖注入对象。
+* byName：根据被注入属性的名称作为 Bean 名称进行依赖查找，并将对象设置到该属性。
+* byType：根据被注入属性的类型作为依赖类型进行查找，并将对象设置到该属性。
+* constructor：特殊 byType 类型，用于构造器参数。
+
+byName的缺陷，如果属性名称或Bean实例名称修改，对应的byName就会注入失败。
+byType的缺陷，如果通过byType找到多个Bean实例，就需要根据@Primary注解，选择主要的Bean实例注入。
+
+### 自动绑定的限制和不足
+
+自动绑定这种依赖注入的方式不是官方所推荐的，在日常开发也很少使用，主要有以下限制和不足：
+
+* 不支持原生类型的自动绑定，比如int、String、Class等。
+* 自动绑定不能在运行前就检测需要自动绑定的Bean是否存在，只有在运行时才能发现，因此不能够在IDE等工具或文档上进行提示。
+* 对于同一个类型有多个Bean实例时，无法确定绑定哪个Bean；
+
+这里说的Autowiring使用不多指的是AbstractBeanDefinition的autowireMode这个属性默认是no，意思是一个spring bean里面的属性spring不自动注入，必须自己加注解（@Autowired）等方式注入。如果不为no，即使不使用@Autowired注解也能将属性注入。因为autowireMode为no，所以要使用@Autowired注解手动注入，这两个根本不是一个东西。
+
+## Setter 方法注入
+
+Setter方法注入的方式分为手动注入和自动注入：
+
+* 手动模式
+  * XML 资源配置元信息
+
+    ```xml
+    <bean id="userHolder" class="xxx">
+        <property name="user" ref="user"/>
+    </bean>
+    ```
+
+  * Java 注解配置元信息
+
+    ```java
+    @Bean
+    public UserHolder userHolder(User user) {
+        UserHolder userHolder = new UserHolder();
+        userHolder.setUser(user);
+        return userHolder;
+    }
+    ```
+
+  * API 配置元信息
+
+    ```java
+    // 注册BeanDefinition
+    BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(UserHolder.class);
+    beanDefinitionBuilder.addPropertyReference("user", "user");
+    applicationContext.registerBeanDefinition("userHolder",beanDefinitionBuilder.getBeanDefinition());    
+    ```
+
+* 自动模式
+  * byName
+
+    ```xml
+    <bean id="userHolder" class="xxx" autowire="byName" />
+    ```
+
+  * byType
+
+    ```xml
+    <bean id="userHolder" class="xxx" autowire="byType" />
+    ```
+
+## 构造器注入
+
+* 手动模式
+  * XML 资源配置元信息
+  * Java 注解配置元信息
+  * API 配置元信息
+* 自动模式
+  * constructor
