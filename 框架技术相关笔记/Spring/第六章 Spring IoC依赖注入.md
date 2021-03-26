@@ -375,3 +375,7 @@ public AutowiredAnnotationBeanPostProcessor() {
   * 元数据
     * InjectedElement
     * InjectionMetadata
+
+**为什么自定义依赖注入中，自定义声明的AutowiredAnnotationBeanPostProcessor必需是静态方法，当前类的注解才会被依赖注入？**
+
+Spring IoC在启动中会注册BeanPostProcessors，需要从BeanFactory获取BeanDefinition中已经注册的BeanPostProcessor。非静态方法自定义声明的AutowiredAnnotationBeanPostProcessor进行初始化实例化需要依赖当前所在的Bean对象，所以当前的Bean需要初始化实例化，因此当前Bean中的注解不能被自定义声明的AutowiredAnnotationBeanPostProcessor进行依赖处理。
