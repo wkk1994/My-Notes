@@ -299,3 +299,79 @@ ObjectProvider是ObjectFactory的子类，并在ObjectFactory上进行了扩展�
     * DefaultListableBeanFactory#findAutowireCandidates：获取对应DependencyType类型的所有Bean实例的名称。
     * DefaultListableBeanFactory#determineAutowireCandidate：获取primary的Bean实例名称。
     * 根据primary的Bean名称获取实例并返回。
+
+## @Autowired注入处理过程
+
+@Autowired注入处理过程可以划分为以下三个阶段：
+
+* 元信息解析；
+* 依赖查找：可上一节讨论的内容一样。
+* 依赖注入（字段、方法）；
+
+详细过程：
+
+* 先调用`AutowiredAnnotationBeanPostProcessor#postProcessMergedBeanDefinition`进行元信息的解析
+  * 方法`AutowiredAnnotationBeanPostProcessor#findAutowiringMetadata`在解析元信息之前会先检查缓存是否存在，存在并且不需要更新就返回元信息。
+    * 方法`AutowiredAnnotationBeanPostProcessor#buildAutowiringMetadata`获取有依赖注入注解的方法和字段并构建对应的InjectedElement信息，后面根据InjectedElement的实例调用inject方法进行依赖注入。
+* 方法`AutowiredAnnotationBeanPostProcessor#postProcessProperties`进行依赖注入
+  * 会先调用findAutowiringMetadata进行元信息的解析，这个时候前面已经解析过直接可以从缓存中获取到元信息。
+  * 调用`InjectionMetadata#inject`进行依赖注入。
+    * 调用每个element的`inject`方法进行依赖注入。
+
+## @Inject 注入
+
+对于@Inject的注入，如果JSR-330 存在于 ClassPath 中，复用AutowiredAnnotationBeanPostProcessor 实现。
+
+```java
+public AutowiredAnnotationBeanPostProcessor() {
+  this.autowiredAnnotationTypes.add(Autowired.class);
+  this.autowiredAnnotationTypes.add(Value.class);
+  try {
+    this.autowiredAnnotationTypes.add((Class<? extends Annotation>)
+    ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+    logger.trace("JSR-330 'javax.inject.Inject' annotation found and supported for autowiring");
+  }
+  catch (ClassNotFoundException ex) {
+  // JSR-330 API not available - simply skip.
+  }
+}
+```
+
+## Java通用注解注入原理
+
+`CommonAnnotationBeanPostProcessor`是用来处理Java的通用注解，本质上和`AutowiredAnnotationBeanPostProcessor`区别不大。CommonAnnotationBeanPostProcessor会先于AutowiredAnnotationBeanPostProcessor执行，这是由order属性决定，数值越高，优先级越低。
+
+可以处理的注解：
+
+* 注入注解：
+  * javax.xml.ws.WebServiceRef
+  * javax.ejb.EJB
+  * javax.annotation.Resource
+* 生命周期注解：
+  * javax.annotation.PostConstruct
+  * javax.annotation.PreDestroy
+
+详细过程：
+
+* 调用`CommonAnnotationBeanPostProcessor#postProcessMergedBeanDefinition`解析元信息。
+  * 调用`InitDestroyAnnotationBeanPostProcessor#postProcessMergedBeanDefinition`方法解析@PostConstruct和@PreDestroy注解指定的方法。
+  * 调用`CommonAnnotationBeanPostProcessor#findResourceMetadata`方法解析@Resource、@Ejb、@WebServiceRef注解修饰的方法或字段。
+* 调用方法`CommonAnnotationBeanPostProcessor#postProcessProperties`进行依赖注入，执行逻辑和Autowired的一致。
+
+## 自定义依赖注入注解
+
+自定义依赖注解的实现有两种方式，一种是基于AutowiredAnnotationBeanPostProcessor 实现，另一种是自己实现一套BeanPostProcessor的逻辑。
+
+* 基于 AutowiredAnnotationBeanPostProcessor 实现
+
+  AutowiredAnnotationBeanPostProcessor会根据属性autowiredAnnotationTypes的值检查字段上有没有对应的注解进行依赖注入，所以通过向autowiredAnnotationTypes中添加自定义的注解，就可以实现自定义注解的注入。
+
+代码示例：[CustomAnnotationDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/CustomAnnotationDependencyInjectionDemo.java)
+
+* 自定义实现
+  * 生命周期处理
+    * InstantiationAwareBeanPostProcessor
+    * MergedBeanDefinitionPostProcessor
+  * 元数据
+    * InjectedElement
+    * InjectionMetadata
