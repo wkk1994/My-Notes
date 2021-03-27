@@ -85,14 +85,14 @@ Bean别名的好处/价值：
   * @Component
   * Import
   * ...
-    代码示例：[AnnotationBeanDefinitionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/AnnotationBeanDefinitionDemo.java)
+    代码示例：[AnnotationBeanDefinitionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/AnnotationBeanDefinitionDemo.java)
 
 * Java API 配置元信息
   * 命名方式：BeanDefinitionRegistry#registerBeanDefinition(String,BeanDefinition);
   * 非命名方式：BeanDefinitionReaderUtils#registerWithGeneratedName(AbstractBeanDefinition,Be
 anDefinitionRegistry);
   * 配置类方式：AnnotatedBeanDefinitionReader#register(Class...)。
-    代码示例：[ApiregistryBeanDefinitionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/ApiregistryBeanDefinitionDemo.java)
+    代码示例：[ApiregistryBeanDefinitionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/ApiregistryBeanDefinitionDemo.java)
 
 > @Bean 和 @Service 名称相同的处理不同？使用@Bean注解声明两个名称相同的Bean，不会启动提示冲突报错，会进行覆盖；而使用@Service声明两个名称相同的Bean，会提示冲突报错。它们两个的处理逻辑不同。
 
@@ -109,14 +109,14 @@ Spring Bean常见的实例化方式可以分为以下：
     配置方式：XML和 Java API
   * 通过FactoryBean实例化
     配置方式：XML、Java 注解和 Java API
-  代码示例：[BeanInstantiationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanInstantiationDemo.java)
+  代码示例：[BeanInstantiationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/BeanInstantiationDemo.java)
 
 * 特殊方式
   * 通过 ServiceLoaderFactoryBean/ServiceListFactoryBean
     配置方式：XML、Java 注解和 Java API
   * 通过 AutowireCapableBeanFactory#createBean(java.lang.Class, int, boolean)
   * 通过 BeanDefinitionRegistry#registerBeanDefinition(String,BeanDefinition)
-  代码示例：[SpecialBeanInstantiationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/SpecialBeanInstantiationDemo.java)
+  代码示例：[SpecialBeanInstantiationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/SpecialBeanInstantiationDemo.java)
 
 ## Spring Bean初始化
 
@@ -131,7 +131,7 @@ Spring Beande初始化方式主要以下三种：
 
 上面三者的执行顺序是：@PostConstruct > 实现InitializingBean接口 > 自定义初始化方法。
 
-代码示例：[BeanInitializationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanInitializationDemo.java)
+代码示例：[BeanInitializationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/BeanInitializationDemo.java)
 
 ## Spring Bean的延迟加载
 
@@ -157,7 +157,7 @@ Spring Bean销毁触发的方法主要有以下三种：
 
 销毁触发的执行顺序是：@PreDestroy > 实现 DisposableBean 接口 > 自定义销毁方法。
 
-代码示例：[BeanDestroyDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/BeanDestroyDemo.java)
+代码示例：[BeanDestroyDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/BeanDestroyDemo.java)
 
 ## 垃圾回收 Spring Bean
 
@@ -168,7 +168,7 @@ Spring Bean销毁触发的方法主要有以下三种：
 * 如何注册一个 Spring Bean？
 
   通过 BeanDefinition 和外部单体对象来注册。
-  外部单体对象注册示例：[SingletonBeanRegistrationDemo.java](https://github.com/wkk1994/spring-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/bean/definition/SingletonBeanRegistrationDemo.java)
+  外部单体对象注册示例：[SingletonBeanRegistrationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/SingletonBeanRegistrationDemo.java)
 * 什么是 Spring BeanDefinition？
 
   保存Spring Bean的各种元信息，并且可以通过setter/getter修改和获取Bean的元信息。

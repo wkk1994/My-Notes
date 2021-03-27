@@ -67,7 +67,7 @@ Setter方法注入的方式分为手动注入和自动注入：
     </bean>
     ```
 
-    代码示例：[XmlDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/XmlDependencySetterInjectionDemo.java)
+    代码示例：[XmlDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/XmlDependencySetterInjectionDemo.java)
 
   * Java 注解配置元信息
 
@@ -80,7 +80,7 @@ Setter方法注入的方式分为手动注入和自动注入：
     }
     ```
 
-    代码示例：[AnnotationDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencySetterInjectionDemo.java)
+    代码示例：[AnnotationDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencySetterInjectionDemo.java)
 
   * API 配置元信息
 
@@ -91,7 +91,7 @@ Setter方法注入的方式分为手动注入和自动注入：
     applicationContext.registerBeanDefinition("userHolder",beanDefinitionBuilder.getBeanDefinition());    
     ```
 
-    代码示例：[ApiDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/ApiDependencySetterInjectionDemo.java)
+    代码示例：[ApiDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/ApiDependencySetterInjectionDemo.java)
 
 * 自动模式
   * byName
@@ -106,7 +106,7 @@ Setter方法注入的方式分为手动注入和自动注入：
     <bean id="userHolder" class="xxx" autowire="byType" />
     ```
 
-  代码示例：[AutoWiringByNameDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AutoWiringByNameDependencySetterInjectionDemo.java)
+  代码示例：[AutoWiringByNameDependencySetterInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AutoWiringByNameDependencySetterInjectionDemo.java)
 
 ## 构造器注入
 
@@ -117,7 +117,7 @@ Setter方法注入的方式分为手动注入和自动注入：
 * 自动模式
   * constructor
 
-代码示例：[XmlDependencyConstructorInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/XmlDependencyConstructorInjectionDemo.java)
+代码示例：[XmlDependencyConstructorInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/XmlDependencyConstructorInjectionDemo.java)
 
 ## 字段注入
 
@@ -135,7 +135,7 @@ private
 UserHolder userHolder2;
 ```
 
-代码示例：[AnnotationDependencyFieldInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencyFieldInjectionDemo.java)
+代码示例：[AnnotationDependencyFieldInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencyFieldInjectionDemo.java)
 
 > @Autowired会忽略静态字段；@Resource不支持静态字段，会抛出错误。
 
@@ -159,7 +159,7 @@ public void initUserHolder2(UserHolder userHolder2) {
 }
 ```
 
-代码示例：[AnnotationDependencyMethodnjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencyMethodnjectionDemo.java)
+代码示例：[AnnotationDependencyMethodnjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AnnotationDependencyMethodnjectionDemo.java)
 
 方法注入会根据方法的参数类型进行依赖注入，不关心方法的名称。
 
@@ -181,7 +181,7 @@ Spring提供了Aware系列接口，通过实现不同的Aware接口，可以在�
 |ApplicationEventPublisherAware| 获取 ApplicationEventPublishAware 对象，用于 Spring 事件|
 |EmbeddedValueResolverAware| 获取 StringValueResolver 对象，用于占位符处理|
 
-代码示例：[AwareInterfaceDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AwareInterfaceDependencyInjectionDemo.java)
+代码示例：[AwareInterfaceDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AwareInterfaceDependencyInjectionDemo.java)
 
 ## 依赖注入类型选择
 
@@ -201,7 +201,7 @@ Spring支持的基础类型的注入有下面四类：
 * 常规类型（General）：Object、String、TimeZone、Calendar、Optional 等。
 * Spring 类型：Resource、InputSource、Formatter 等这些是Spring自己提供的类型。
 
-代码示例：[BaseTypeDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/BaseTypeDependencyInjectionDemo.java)
+代码示例：[BaseTypeDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/BaseTypeDependencyInjectionDemo.java)
 
 > Enum类型实际上是使用final static来定义常量，可以通过javap进行查看。
 
@@ -214,7 +214,7 @@ Spring支持的集合类型的注入：
   * Collection：List、Set（SortedSet、NavigableSet、EnumSet）
   * Map：Properties
 
-代码示例：[BaseTypeDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/BaseTypeDependencyInjectionDemo.java)
+代码示例：[BaseTypeDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/BaseTypeDependencyInjectionDemo.java)
 
 ## 限定注入
 
@@ -263,7 +263,7 @@ Spring的@Qualifier注解不仅可以根据Bean名称进行限定注入，还可
 * 基于注解 @Qualifier 扩展限定
   * 自定义注解 - 如 Spring Cloud @LoadBalanced
 
-代码示例：[QualifierDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/QualifierDependencyInjectionDemo.java)
+代码示例：[QualifierDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/QualifierDependencyInjectionDemo.java)
 
 > 为什么上面allUsers只会注入2个Bean实例？
 > @Autowired 依赖注入，默认是先不找当前配置类内定义的，如果在其他地方找到了，例如 XML 配置文件，或者你自己注册的一个 Bean，那么当前配置类内定义的就会被忽略，如果在别的地方都找不到，才会来考虑当前配置类中定义的，这应该属于一个兜底吧，如果不这么做，就会报错了，因为 @Autowired 的 required 属性默认是 true。
@@ -366,7 +366,7 @@ public AutowiredAnnotationBeanPostProcessor() {
 
   AutowiredAnnotationBeanPostProcessor会根据属性autowiredAnnotationTypes的值检查字段上有没有对应的注解进行依赖注入，所以通过向autowiredAnnotationTypes中添加自定义的注解，就可以实现自定义注解的注入。
 
-代码示例：[CustomAnnotationDependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/CustomAnnotationDependencyInjectionDemo.java)
+代码示例：[CustomAnnotationDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/CustomAnnotationDependencyInjectionDemo.java)
 
 * 自定义实现
   * 生命周期处理
@@ -375,7 +375,3 @@ public AutowiredAnnotationBeanPostProcessor() {
   * 元数据
     * InjectedElement
     * InjectionMetadata
-
-**为什么自定义依赖注入中，自定义声明的AutowiredAnnotationBeanPostProcessor必需是静态方法，当前类的注解才会被依赖注入？**
-
-Spring IoC在启动中会注册BeanPostProcessors，需要从BeanFactory获取BeanDefinition中已经注册的BeanPostProcessor。非静态方法自定义声明的AutowiredAnnotationBeanPostProcessor进行初始化实例化需要依赖当前所在的Bean对象，所以当前的Bean需要初始化实例化，因此当前Bean中的注解不能被自定义声明的AutowiredAnnotationBeanPostProcessor进行依赖处理。

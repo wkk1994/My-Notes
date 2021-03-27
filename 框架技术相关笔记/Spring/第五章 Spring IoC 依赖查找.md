@@ -30,7 +30,7 @@ Java中对依赖查找的实现有：
     * getBeanProvider(ResolvableType)
 * 根据 Bean 名称 + 类型查找：getBean(String,Class)
 
-示例代码：[ObjectProviderDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/dependency/lookup/ObjectProviderDemo.java)
+示例代码：[ObjectProviderDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/ioc/dependency/lookup/ObjectProviderDemo.java)
 
 ## 集合类型依赖查找
 
@@ -68,7 +68,7 @@ Java中对依赖查找的实现有：
 * 根据 Java 注解查找名称列表
   * BeanFactoryUtils#beanNamesForTypeIncludingAncestors
 
-示例代码：[HierarchicalDependencyLookupDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/dependency/lookup/HierarchicalDependencyLookupDemo.java)
+示例代码：[HierarchicalDependencyLookupDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/ioc/dependency/lookup/HierarchicalDependencyLookupDemo.java)
 
 ## 延迟依赖查找
 
@@ -84,7 +84,7 @@ Bean实现延迟依赖查找的接口：
 
 ObjectProvider是ObjectFactory的子类，在ObjectFactory的基础上进行了扩展，支持当bean不存在时可以执行默认创建的方式，并支持查找bean实例的集合。
 
-示例代码：[ObjectProviderDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/dependency/lookup/ObjectProviderDemo.java)
+示例代码：[ObjectProviderDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/ioc/dependency/lookup/ObjectProviderDemo.java)
 
 延迟查找的意义：ObjectProvider提供的延迟查找的ifAvailable方法，可以让程序在对象实例化完成时，进行预定义对象的一些行为或事件，从而实现对象的个性化配置。getIfAvailable方法，提供了Bean实例不存在的个性化配置。
 
@@ -144,7 +144,7 @@ AbstractApplicationContext是AnnotationConfigApplicationContext、ClassPathXmlAp
 
 以上异常都是BeansException的子类，并且BeansException是RuntimeException的子类。
 
-示例代码：[BeanInstantiationExceptionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/dependency/lookup/BeanInstantiationExceptionDemo.java)
+示例代码：[BeanInstantiationExceptionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/ioc/dependency/lookup/BeanInstantiationExceptionDemo.java)
 
 ## 面试题
 

@@ -17,7 +17,7 @@
 
 代码示例：
 
-[DependencyLookupDemo.java](https://github.com/wkk1994/spring-learn/blob/master/ioc-container-overview/src/main/java/com/wkk/learn/spring/ioc/overview/dependency/lookup/DependencyLookupDemo.java)
+[DependencyLookupDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/ioc-container-overview/src/main/java/com/wkk/learn/spring/ioc/overview/dependency/lookup/DependencyLookupDemo.java)
 
 > ObjectFactory和FactoryBean的关系：
 
@@ -38,7 +38,7 @@
 
 代码示例：
 
-[DependencyInjectionDemo.java](https://github.com/wkk1994/spring-learn/blob/master/ioc-container-overview/src/main/java/com/wkk/learn/spring/ioc/overview/dependency/injection/DependencyInjectionDemo.java)
+[DependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/ioc-container-overview/src/main/java/com/wkk/learn/spring/ioc/overview/dependency/injection/DependencyInjectionDemo.java)
 
 ## Spring IoC依赖来源
 
@@ -111,7 +111,6 @@ BeanFactory是一个底层的IoC容器，提供了基本的IoC容器的功能；
 
 * BeanFactory和FactoryBean？
   BeanFactory是IoC的底层实现；而FactoryBean是创建Bean的一种方式，可以解决复杂的构造场景和初始化场景。**创建的Bean会不会还经过Bean的生命周期？？**
-  Spring Bean有两种实现，普通Bean和工厂Bean(FactoryBean)，使用FactoryBean实现的SpringBean，当容器通过getBean()获取bean时，返回的是实现的getObject()方法返回的对象。
 
 * Spring IoC容器启动时做了哪些准备？
 
