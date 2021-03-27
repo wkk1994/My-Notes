@@ -375,3 +375,12 @@ public AutowiredAnnotationBeanPostProcessor() {
   * 元数据
     * InjectedElement
     * InjectionMetadata
+
+## 面试题
+
+* 有多少种依赖注入方式？
+  构造器注入、Setter注入、字段注入、方法注入、接口回调注入
+* 编好构造器注入还是Setter注入？
+  根据场景区分，构造器注入一般适用于强依赖的注入，解决线程安全的问题，因为构造器注入可以确保线程安全和数据一致性；Setter注入适用于可选依赖，注入顺序不固定的，易于扩展。两种注入方式都不建议过多依赖容器的API或者注解。
+* Spring依赖注入的来源有哪些？
+  下章节。
