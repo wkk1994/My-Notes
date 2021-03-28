@@ -107,9 +107,11 @@ BeanFactory是一个底层的IoC容器，提供了基本的IoC容器的功能；
 ## 面试题精选
 
 * 什么是Spring IoC容器？
+
   Spring IoC是控制反转的实现，通过使用依赖注入和依赖查找的方式实现依赖的反转，并维护Bean信息。
 
 * BeanFactory和FactoryBean？
+
   BeanFactory是IoC的底层实现；而FactoryBean是创建Bean的一种方式，可以解决复杂的构造场景和初始化场景。**创建的Bean会不会还经过Bean的生命周期？？**
 
 * Spring IoC容器启动时做了哪些准备？

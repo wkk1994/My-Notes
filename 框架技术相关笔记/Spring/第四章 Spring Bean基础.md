@@ -64,8 +64,10 @@ Bean 的 id 或 name 属性并非必须制定，如果留空的话，容器会�
 Spring Bean的名称可以自己手动指定，当没有指定时，Spirng会使用默认的Bean名称生成器生成名称。主要的Bean名称生成器有`DefaultBeanNameGenerator`和`AnnotationBeanNameGenerator`。
 
 * DefaultBeanNameGenerator：默认通用BeanNameGenerator实现，Spring 2.0.3引入。
+
   生成规则：如果当前BeanName（类的全限定名）还没有对应的Bean，Bean名称就为BeanName，否则就是BeanName+#+当前Bean实例的数量。
 * AnnotationBeanNameGenerator：基于注解扫描的 BeanNameGenerator 实现，Spring 2.5引入。
+
   生成规则：如果注解的value值存在就使用value作为BeanName，否则就当前类名的驼峰值。
 
 ### Bean的别名
@@ -85,6 +87,7 @@ Bean别名的好处/价值：
   * @Component
   * Import
   * ...
+
     代码示例：[AnnotationBeanDefinitionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/AnnotationBeanDefinitionDemo.java)
 
 * Java API 配置元信息
@@ -92,6 +95,7 @@ Bean别名的好处/价值：
   * 非命名方式：BeanDefinitionReaderUtils#registerWithGeneratedName(AbstractBeanDefinition,Be
 anDefinitionRegistry);
   * 配置类方式：AnnotatedBeanDefinitionReader#register(Class...)。
+
     代码示例：[ApiregistryBeanDefinitionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/ApiregistryBeanDefinitionDemo.java)
 
 > @Bean 和 @Service 名称相同的处理不同？使用@Bean注解声明两个名称相同的Bean，不会启动提示冲突报错，会进行覆盖；而使用@Service声明两个名称相同的Bean，会提示冲突报错。它们两个的处理逻辑不同。
@@ -109,6 +113,7 @@ Spring Bean常见的实例化方式可以分为以下：
     配置方式：XML和 Java API
   * 通过FactoryBean实例化
     配置方式：XML、Java 注解和 Java API
+
   代码示例：[BeanInstantiationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/BeanInstantiationDemo.java)
 
 * 特殊方式
@@ -116,6 +121,7 @@ Spring Bean常见的实例化方式可以分为以下：
     配置方式：XML、Java 注解和 Java API
   * 通过 AutowireCapableBeanFactory#createBean(java.lang.Class, int, boolean)
   * 通过 BeanDefinitionRegistry#registerBeanDefinition(String,BeanDefinition)
+
   代码示例：[SpecialBeanInstantiationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/definition/SpecialBeanInstantiationDemo.java)
 
 ## Spring Bean初始化
@@ -140,9 +146,9 @@ Spring Bean的延迟加载的方式主要有：
 * XML 配置：`<bean lazy-init="true" ... />`；
 * Java 注解：@Lazy(true)。
 
-当Bean设置为延迟加载后，会在使用该Bean的时候才会去执行初始化，通常情况下只有Bean的方法或者字段被调用时才会触发初始化。
+当Bean设置为延迟加载后，会在使用该Bean的时候才会去执行实例化和初始化，通常情况下只有Bean的方法或者字段被调用时才会触发实例化和初始化。
 
-通过方法`BeanFactory#getBeanProvider(java.lang.Class<T>)`获取对象时，对于懒加载的对象不会执行初始化，会在调用getObject方法时才执行初始化。
+通过方法`BeanFactory#getBeanProvider(java.lang.Class<T>)`获取对象时，对于懒加载的对象不会执行实例化和初始化，会在调用getObject方法时才执行实例化和初始化。
 
 ## Spring Bean销毁
 
@@ -174,4 +180,5 @@ Spring Bean销毁触发的方法主要有以下三种：
   保存Spring Bean的各种元信息，并且可以通过setter/getter修改和获取Bean的元信息。
 
 * Spring 容器是怎样管理注册 Bean？
+
   后续论述。
