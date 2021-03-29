@@ -15,8 +15,8 @@
 
 ### 依赖注入的类型
 
-|依赖注入类型| 配置元数据举例|
-|--|--|--|
+|依赖注入类型|配置元数据举例|
+|--|--|
 |Setter方法| `<proeprty name="user" ref="userBean"/>`|
 |构造器| `<constructor|-arg name="user" ref="userBean" />`|
 |字段| @Autowired User user;|
@@ -187,10 +187,10 @@ Spring提供了Aware系列接口，通过实现不同的Aware接口，可以在�
 
 如何在使用中进行依赖注入类型的选择：
 
-* 构造器注入：能够保证注入顺序，适合依赖注入比较少的情况，比如只需要注入3个对象，不够构造器注入无法解决循环依赖的问题。
+* 构造器注入：能够保证注入顺序，适合依赖注入比较少的情况，比如只需要注入3个对象，不过构造器注入无法解决循环依赖的问题。
 * Setter注入：适合多依赖的情况，不能保证注入的顺序性。
 * 字段注入：注入方便，但是Spring不推荐。
-* 方法注入：推荐在声明类的时候使用该方式，比如@Bean注解声明一个类时。
+* 方法注入：推荐在声明Bean的时候使用该方式，比如@Bean注解声明一个Bean时需要依赖其他Bean实例。
 
 ## 基础类型注入
 
@@ -222,6 +222,7 @@ Spring的@Qualifier注解不仅可以根据Bean名称进行限定注入，还可
 
 * 使用注解 @Qualifier 限定
   * 通过 Bean 名称限定
+
     添加@Qualifier，如果存在多个Bean实例，会根据Bean名称进行依赖注入。
 
     ```java
@@ -231,6 +232,7 @@ Spring的@Qualifier注解不仅可以根据Bean名称进行限定注入，还可
     ```
 
   * 通过分组限定
+
     在声明Bean的时候添加@Qualifier注解，可以将Bean实例进行分组，添加@Qualifier注解的Bean只能被在依赖注入时被@Qualifier注解修饰的变量注入。
 
     ```java
@@ -279,7 +281,7 @@ Spring的@Qualifier注解不仅可以根据Bean名称进行限定注入，还可
 
 ObjectProvider是ObjectFactory的子类，并在ObjectFactory上进行了扩展。
 
-> 在Spring源码中，大量非必要的依赖使用ObjectProvider进行依赖注入，这样可以避免一些非必要bean注入提升NoSuchBeanExecption的错误。
+> 在Spring源码中，大量非必要的依赖使用ObjectProvider进行依赖注入，这样可以避免一些非必要bean注入时提示NoSuchBeanExecption的错误。
 
 ## 依赖处理过程
 
@@ -305,8 +307,8 @@ ObjectProvider是ObjectFactory的子类，并在ObjectFactory上进行了扩展�
 @Autowired注入处理过程可以划分为以下三个阶段：
 
 * 元信息解析；
-* 依赖查找：可上一节讨论的内容一样。
-* 依赖注入（字段、方法）；
+* 依赖查找：可上一节讨论的内容一样；
+* 依赖注入（字段、方法）。
 
 详细过程：
 
@@ -384,8 +386,13 @@ Spring IoC在启动中会注册BeanPostProcessors，需要从BeanFactory获取Be
 ## 面试题
 
 * 有多少种依赖注入方式？
+
   构造器注入、Setter注入、字段注入、方法注入、接口回调注入
+
 * 编好构造器注入还是Setter注入？
+
   根据场景区分，构造器注入一般适用于强依赖的注入，解决线程安全的问题，因为构造器注入可以确保线程安全和数据一致性；Setter注入适用于可选依赖，注入顺序不固定的，易于扩展。两种注入方式都不建议过多依赖容器的API或者注解。
+
 * Spring依赖注入的来源有哪些？
-  下章节。
+
+  下章节

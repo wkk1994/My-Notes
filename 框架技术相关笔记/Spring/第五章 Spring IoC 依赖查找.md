@@ -68,6 +68,8 @@ Java中对依赖查找的实现有：
 * 根据 Java 注解查找名称列表
   * BeanFactoryUtils#beanNamesForTypeIncludingAncestors
 
+以上的方法都是在当前本地进行查找，不会从父BeanFactory中查找。
+
 示例代码：[HierarchicalDependencyLookupDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-lookup/src/main/java/com/wkk/learn/spring/ioc/dependency/lookup/HierarchicalDependencyLookupDemo.java)
 
 ## 延迟依赖查找
@@ -153,6 +155,7 @@ AbstractApplicationContext是AnnotationConfigApplicationContext、ClassPathXmlAp
   ObjectFactory 与 BeanFactory 均提供依赖查找的能力。不过 ObjectFactory 仅关注一个或一种类型的 Bean 依赖查找，并且自身不具备依赖查找的能力，能力则由 BeanFactory 输出。BeanFactory 则提供了单一类型、集合类型以及层次性等多种依赖查找方式。
 
 * BeanFactory.getBean 操作是否线程安全？
+
   BeanFactory.getBean 方法的执行是线程安全的，操作过程中会增加互斥锁。
 
 * Spring 依赖查找与注入在来源上的区别?

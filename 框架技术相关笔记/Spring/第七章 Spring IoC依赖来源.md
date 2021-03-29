@@ -14,6 +14,7 @@
   |org.springframework.context.annotation.internalAutowiredAnnotationProcessor|AutowiredAnnotationBeanPostProcessor 对象|处理 @Autowired 以及@Value 注解|
   |org.springframework.context.annotation.internalCommonAnnotationProcessor|CommonAnnotationBeanPostProcessor 对象|（条件激活）处理 JSR-250 注解，如 @PostConstruct 等|
   |org.springframework.context.event.internalEventListenerProcessor|EventListenerMethodProcessor 对 象|处理标注 @EventListener 的Spring 事件监听方法|
+
   BeanDefinition的注入可以参考代码`AnnotationConfigUtils#registerAnnotationConfigProcessors`
 * Spring 內建单例对象
   |Bean 名称| Bean 实例| 使用场景|
@@ -24,6 +25,7 @@
   |messageSource| MessageSource 对象| 国际化文案|
   |lifecycleProcessor| LifecycleProcessor 对象| Lifecycle Bean 处理器|
   |applicationEventMulticaster| ApplicationEventMulticaster 对 象|Spring 事件广播器|
+
   内建的单例对象注入可以参考代码`AbstractApplicationContext#prepareBeanFactory`
 
 Spring提供的内建Bean不一定只是这些，如果激活了AOP或者Transactiona，还会注入更多的Bean。
@@ -70,7 +72,7 @@ Spring IoC中单例对象可以通过API注入，作为依赖来源之一。这�
 
 `AbstractBeanFactory#doGetBean`实现的细节：会优先从singletonObjects中获取Bean实例。
 
-> singletonObjects属性用来存放所有已经完成初始化和实例化的对象，earlySingletonObjects存放初始化未完全的对象，singletonFactories存放对象的初始化方法；通过这三个的组合可以解决循环依赖问题。
+> singletonObjects属性用来存放所有已经完成初始化和实例化的对象，earlySingletonObjects存放实例化完成但初始化未完全的对象，singletonFactories存放对象的初始化方法；通过这三个的组合可以解决循环依赖问题。
 
 ## 非Spring容器管理对象作为依赖来源
 
@@ -91,6 +93,7 @@ Spring IoC中单例对象可以通过API注入，作为依赖来源之一。这�
 ## 面试题
 
 * 注入和查找的依赖来源是否相同？
+
   否，依赖查找的来源仅限于 Spring BeanDefinition 以及单例对象，而依赖注入的来源还包括 Resolvable Dependency 以及@Value 所标注的外部化配置。Spring更注重于依赖注入，因为依赖查找是主动的，需要二次的操作。
 
 * 单例对象能在 IoC 容器启动后注册吗？
@@ -98,4 +101,5 @@ Spring IoC中单例对象可以通过API注入，作为依赖来源之一。这�
   可以的，单例对象的注册与 BeanDefinition 不同，BeanDefinition会被ConfigurableListableBeanFactory#freezeConfiguration() 方法影响，从而冻结注册（实际上只是设置configurationFrozen为true，并不会真正冻结注册），单例对象则没有这个限制。
 
 * Spring 依赖注入的来源有哪些？
+
   Spring BeanDefinition、单例对象、Resolvable Dependency、@Value 外部化配置。
