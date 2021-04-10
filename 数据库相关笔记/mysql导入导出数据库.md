@@ -36,6 +36,10 @@ mysqldump -u 用户名 -p --single-transaction 数据库名 表名1 表名2 > �
 * 导出远程数据库
 mysqldump -h 远程IP地址 -u 用户名 -p 数据库名 表名1 表名2 > 导出的文件名
 
+mysqldump --column-statistics=0 -h 47.102.107.218 -u mysql -p --single-transaction stcsm_user > stcsm_user.sql
+
+mysqldump --column-statistics=0 -h 127.0.0.1 -u mysql -p --single-transaction stcsm_user > stcsm_user-2021-04-06.sql
+
 ### 导入数据
 
 1、首先建空数据库
