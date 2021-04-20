@@ -869,7 +869,7 @@ JMM引入内存屏障机制，用于控制可见性和指令重排序。内存�
 
      对象头的Mark Word：
 
-    ![对象头的MarkWord](https://note.youdao.com/yws/api/personal/file/WEB4f09b26fb61180c458bfb41bb90a84b2?method=download&shareKey=56ea9804c0f0db8ae48b8edef50a762d)
+    ![对象头的MarkWord](https://note.youdao.com/yws/api/personal/file/WEB8bf4e707446aceb5087a09c536b30366?method=download&shareKey=d2f48e5342626f89a088bf54e2090b5a)
 
 * 实例数据
 
