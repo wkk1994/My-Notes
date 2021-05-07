@@ -52,3 +52,97 @@ Spring BeanDefinition的合并主要是进行父子BeanDefinition的合并，在
   * 将得到的BeanDefinition，缓存到mergedBeanDefinitions中。
 
 > 在获取parent的BeanDefinition时，会检查当前的parentName是否和正在获取BeanDefinition的beanName一致，如果一致就会从ParentBeanFactory中去查询MergedBeanDefinition，因为在一个BeanFactory中不允许beanName重复的BeanDefinition，所以会进行一个层次性的查找。
+
+## Spring Bean Class加载阶段
+
+Spring Bean Class加载阶段发生在`AbstractBeanFactory#doGetBean`方法调用时，最终实现Class加载的核心方法为`AbstractBeanFactory#resolveBeanClass`。Spring Bean Class加载的最终处理还是由Java ClassLoader进行类加载，只不过在加载之前进行了Java安全的校验，其中还有Spring自己实现的tempClassLoader。
+
+说明：
+
+* AbstractBeanDefinition中的beanClass字段使用的是Object类型，可以存放当前的className或者Class对象，当类被加载后beanClass就会指向加载后的Class对象，这样通过判断beanClass是否是Class类型的就知道类是否被加载过了。
+* tempClassLoader是ConfigurableBeanFactory的一个临时的ClassLoader。
+* Spring Bean Class在加载的时候默认是不进行初始化的，`Class.forName(name, false, clToUse)`。
+
+## Spring Bean实例化阶段
+
+### 实例化前阶段
+
+在Bean的实例化前阶段，会调用`InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation`方法，如果该方法返回的对象不为null，就不会执行bean接下来的实例化，用返回的对象作为Bean实例化的对象。
+
+[InstantiationAwareBeanPostProcessorDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/InstantiationAwareBeanPostProcessorDemo.java)
+
+### 实例化阶段
+
+Spring Bean实例化方式通常有两种：
+
+* 传统实例化方式：通过实例化策略进行实现，`InstantiationStrategy`。
+* 构造器依赖注入实例化方式。
+
+传统的实例化注入方式是通过默认无参数的构造器注入，实现方法`SimpleInstantiationStrategy#instantiate(org.springframework.beans.factory.support.RootBeanDefinition, java.lang.String, org.springframework.beans.factory.BeanFactory)`，最终还是通过Java反射执行Constructor对象的newInstance方法。
+
+构造器依赖注入实现方式，是通过获取对应的构造器方法进行实例化对象。也是通过Java反射执行Constructor对象的newInstance方法。
+
+## Spring Bean 实例化后阶段
+
+通过方法`InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation`可以控制Bean实例化后属性赋值操作。
+
+方法默认返回true，如果方法返回false，表示属性赋值会被跳过。
+
+实现细节：`AbstractAutowireCapableBeanFactory#populateBean`
+
+示例代码：[InstantiationAwareBeanPostProcessorDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/InstantiationAwareBeanPostProcessorDemo.java)
+
+## Spring Bean属性赋值前阶段
+
+PropertyValues保存了Bean属性值元信息，Spring提供了扩展机制，可以在属性赋值之前对PropertyValues进行操作：
+
+* Spring 1.2 - 5.0：InstantiationAwareBeanPostProcessor#postProcessPropertyValues
+
+  方法如果返回null，表示不对属性值进行设置，直接返回。
+
+* Spring 5.1：InstantiationAwareBeanPostProcessor#postProcessProperties
+
+  方法如果返回null，表示不对属性值进行修改，按照原先的PropertyValue进行属性填充。
+
+实现细节：`AbstractAutowireCapableBeanFactory#populateBean`
+
+示例代码：[MyInstantiationAwareBeanPostProcessor#postProcessProperties](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/InstantiationAwareBeanPostProcessorDemo.java)
+
+## Spring Bean Aware 接口回调阶段
+
+Spring提供了多个BeanAware接口在适当的时机进行回调：
+
+* BeanNameAware
+* BeanClassLoaderAware
+* BeanFactoryAware
+* EnvironmentAware
+* EmbeddedValueResolverAware
+* ResourceLoaderAware
+* ApplicationEventPublisherAware
+* MessageSourceAware
+* ApplicationContextAware
+
+BeanNameAware、BeanClassLoaderAware、BeanFactoryAware的回调属于BeanFactory的回调，所以在BeanFactory时会回调，但是其他的Aware属于ApplicationContext的回调机制，必须要在ApplicationContext中进行回调。
+
+BeanNameAware、BeanClassLoaderAware、BeanFactoryAware的回调顺序为BeanNameAware -> BeanClassLoaderAware -> BeanFactoryAware，参考方法`AbstractAutowireCapableBeanFactory#invokeAwareMethods`
+
+```java
+if (bean instanceof Aware) {
+  if (bean instanceof BeanNameAware) {
+    ((BeanNameAware) bean).setBeanName(beanName);
+  }
+  if (bean instanceof BeanClassLoaderAware) {
+    ClassLoader bcl = getBeanClassLoader();
+    if (bcl != null) {
+      ((BeanClassLoaderAware) bean).setBeanClassLoader(bcl);
+    }
+  }
+  if (bean instanceof BeanFactoryAware) {
+    ((BeanFactoryAware) bean).setBeanFactory(AbstractAutowireCapableBeanFactory.this);
+  }
+}
+```
+
+剩下的顺序参考：`ApplicationContextAwareProcessor#invokeAwareInterfaces`
+
+示例代码：[BeanAwareDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/BeanAwareDemo.java)
