@@ -146,3 +146,54 @@ if (bean instanceof Aware) {
 剩下的顺序参考：`ApplicationContextAwareProcessor#invokeAwareInterfaces`
 
 示例代码：[BeanAwareDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/BeanAwareDemo.java)
+
+## Spring Bean初始化前阶段
+
+Spring Bean初始化前阶段，属性设置完成阶段会回调方法`BeanPostProcessor#postProcessBeforeInitialization`。如果方法返回的bean对象不为空，就用返回的bean对象替换原来的bean实例对象，通过这个方法可以对bean进行代理增强，返回代理的bean实例对象。
+
+实现细节：`AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsBeforeInitialization`
+
+```java
+  @Override
+  public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
+      throws BeansException {
+
+    Object result = existingBean;
+    for (BeanPostProcessor processor : getBeanPostProcessors()) {
+      Object current = processor.postProcessBeforeInitialization(result, beanName);
+      if (current == null) {
+        return result;
+      }
+      result = current;
+    }
+    return result;
+  }
+```
+
+示例代码：[MyInstantiationAwareBeanPostProcessor#postProcessBeforeInitialization](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/BeanAMyInstantiationAwareBeanPostProcessorwareDemo.java)
+
+> 通过XmlBeanDefinitionReader loadBeanDefinitions是将xml中bean对应的beanDefinition注册到beanFactory中,底层通过BeanDefinitionReaderUtils#registerBeanDefinition()方法实现,这个在BeanDefinition注册阶段讲过,这个时候只是注册beanDefinition没有像ApplicationContext.refresh()中的registerBeanPostProcessors()将bean post Processor添加到beanFactory的beanPostProcessors list集合中操作,所以xml读取的时候需要手动的addBeanPostProcessor;如果通过ClassPathXmlApplicationContext创建ApplicationContext的方式xml中定义MyInstantiationAwareBeanPostProcessor是可以的,因为ClassPathXmlApplicationContext创建时会执行refresh()操作会从beanFactory中找到MyInstantiationAwareBeanPostProcessor bean后添加到beanPostProcessors的list集合中
+
+## Spring Bean初始化阶段
+
+Spring Bean初始化阶段的回调方式有三种：
+
+* @PostConstruct标注的方法
+
+  @PostConstruct注解需要注解驱动的支持，即`CommonAnnotationBeanPostProcessor`
+* 实现InitializingBean接口的 afterPropertiesSet() 方法
+* 自定义初始化方法
+
+@PostConstruct不仅需要注解驱动，它的实现方式是在postProcessBeforeInitialization里调用的，通过获取被注解定义的method，然后执行method的invoke方法实现调用。核心实现API：`InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization`。
+
+实现InitializingBean接口和自定义初始化方式的实现，都是在同一个方法中进行调用的，也是通过反射的形式，核心实现API：`AbstractAutowireCapableBeanFactory#invokeInitMethods`。
+
+## Spring Bean 初始化后阶段
+
+Spring Bean 初始化后阶段的回调方法是`BeanPostProcessor#postProcessAfterInitialization`。
+
+实现API：`AbstractAutowireCapableBeanFactory#applyBeanPostProcessorsAfterInitialization`。
+
+## Spring Bean初始化总结
+
+org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#initializeBean(java.lang.String, java.lang.Object, org.springframework.beans.factory.support.RootBeanDefinition)
