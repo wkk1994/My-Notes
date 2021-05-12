@@ -181,7 +181,9 @@ Spring Bean初始化阶段的回调方式有三种：
 * @PostConstruct标注的方法
 
   @PostConstruct注解需要注解驱动的支持，即`CommonAnnotationBeanPostProcessor`
-* 实现InitializingBean接口的 afterPropertiesSet() 方法
+
+* 实现InitializingBean接口的afterPropertiesSet() 方法
+
 * 自定义初始化方法
 
 @PostConstruct不仅需要注解驱动，它的实现方式是在postProcessBeforeInitialization里调用的，通过获取被注解定义的method，然后执行method的invoke方法实现调用。核心实现API：`InitDestroyAnnotationBeanPostProcessor#postProcessBeforeInitialization`。
@@ -197,3 +199,45 @@ Spring Bean 初始化后阶段的回调方法是`BeanPostProcessor#postProcessAf
 ## Spring Bean初始化总结
 
 org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#initializeBean(java.lang.String, java.lang.Object, org.springframework.beans.factory.support.RootBeanDefinition)
+
+## Spring Bean初始化完成阶段
+
+Spring4.1版本提供了`SmartInitializingSingleton#afterSingletonsInstantiated`的方法回调，可以在Bean初始化完成时进行回调处理，这个回调方法通过方法`DefaultListableBeanFactory#preInstantiateSingletons`进行触发，通常在BeanFactory中不会被触发，需要手动调用preInstantiateSingletons方法，在ApplicationContext中会主动调用beanFactory的preInstantiateSingletons方法进行触发。
+
+核心实现是：`DefaultListableBeanFactory#preInstantiateSingletons`，实现细节会根据注册的beanDefinitionNames列表，对Bean进行逐一创建（getBean方法），然后判断Bean是否实现了`SmartInitializingSingleton#afterSingletonsInstantiated`，进行调用。
+
+> `DefaultListableBeanFactory#preInstantiateSingletons`方法提前对注册的BeanDefinition进行了实例化初始化，使得在`SmartInitializingSingleton#afterSingletonsInstantiated`方法中可以获取到最终初始化完整的Bean实例，比较推荐在这里进行Bean初始化的扩展，可以避免后续再有方法对Bean实例进行修改。
+
+## Spring Bean销毁前阶段
+
+Spring提供回调方法`DestructionAwareBeanPostProcessor#postProcessBeforeDestruction`在Bean实例被销毁前进行调用。可以调用`AbstractBeanFactory#destroyBean(java.lang.String, java.lang.Object)`主动销毁Bean实例，销毁Bean只是调用Bean的销毁方法，Bean并不会被GC回收，也不会从IOC容器中除移。
+
+核心实现：`DisposableBeanAdapter#destroy`。
+
+示例代码：[MyDestructionAwareBeanPostProcessor](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/MyDestructionAwareBeanPostProcessor.java)
+
+## Spring Bean销毁阶段
+
+和Spring Bean初始化阶段一样，Spring也提供了销毁阶段的三个回调方式：
+
+* @PreDestroy标注方法
+
+  @PreDestroy注解需要注解驱动的支持，即`CommonAnnotationBeanPostProcessor`
+
+* 实现DisposableBean接口的destroy()方法
+
+* 自定义销毁方法
+
+示例代码：[UserHolder](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/UserHolder.java)
+
+> `ConfigurableBeanFactory#destroySingletons`方法会清除 Spring BeanFactory 缓存的 Bean 对象
+
+## Spring Bean垃圾收集
+
+Spring Bean垃圾回收的过程：
+
+* 关闭Spring容器（上下文）；
+* 执行GC；
+* Spring Bean覆盖finlize()方法被回调。
+
+> 在SpringBoot或SpringCloud中上下文是可以被替换的，在替换时需要注意Bean是否被真正引用到，或者被垃圾回收，防止内存泄漏。
