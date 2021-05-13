@@ -63,15 +63,13 @@ Spring Bean Class加载阶段发生在`AbstractBeanFactory#doGetBean`方法调�
 * tempClassLoader是ConfigurableBeanFactory的一个临时的ClassLoader。
 * Spring Bean Class在加载的时候默认是不进行初始化的，`Class.forName(name, false, clToUse)`。
 
-## Spring Bean实例化阶段
-
-### 实例化前阶段
+## Spring Bean实例化前阶段
 
 在Bean的实例化前阶段，会调用`InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation`方法，如果该方法返回的对象不为null，就不会执行bean接下来的实例化，用返回的对象作为Bean实例化的对象。
 
 [InstantiationAwareBeanPostProcessorDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/spring-bean/src/main/java/com/wkk/learn/spring/ioc/bean/cyclelife/InstantiationAwareBeanPostProcessorDemo.java)
 
-### 实例化阶段
+## Spring Bean实例化阶段
 
 Spring Bean实例化方式通常有两种：
 
@@ -241,3 +239,33 @@ Spring Bean垃圾回收的过程：
 * Spring Bean覆盖finlize()方法被回调。
 
 > 在SpringBoot或SpringCloud中上下文是可以被替换的，在替换时需要注意Bean是否被真正引用到，或者被垃圾回收，防止内存泄漏。
+
+## 面试题
+
+* BeanPostProcessor 的使用场景有哪些？
+
+  BeanPostProcessor提供了Spring Bean的初始化前和初始化后生命周期回调，分别对应postProcessBeforeInitialization 以及postProcessAfterInitialization 方法，允许对关心的 Bean 进行扩展，甚至是替换。其中，ApplicationContext 相关的 Aware 回调也是基于BeanPostProcessor 实现，即 ApplicationContextAwareProcessor。
+
+* BeanFactoryPostProcessor 与BeanPostProcessor 的区别
+
+  BeanFactoryPostProcessor 是 Spring BeanFactory（实际为ConfigurableListableBeanFactory） 的后置处理器，用于扩展BeanFactory，或通过 BeanFactory 进行依赖查找和依赖注入。BeanFactoryPostProcessor 必须有 Spring ApplicationContext 执行，BeanFactory 无法与其直接交互。
+  而 BeanPostProcessor 则直接与BeanFactory 关联，属于 N 对 1 的关系。
+
+* BeanFactory 是怎样处理 Bean 生命周期？
+
+  BeanFactory的默认实现为DefaultListableBeanFactory，其中Bean生命周期与方法映射关系为：
+
+  * BeanDefinition注册阶段：调用`DefaultListableBeanFactory#registerBeanDefinition`
+  * BeanDefinition合并阶段：调用`AbstractBeanFactory#getMergedBeanDefinitio`
+  * Bean实例化前回调：调用`AbstractAutowireCapableBeanFactory#resolveBeforeInstantiation`，该方法最终会逐一调用`BeanPostProcessor#postProcessBeforeInitialization`，如果方法返回了bean实例对象，直接作为Bean实例返回。
+  * Bean实例化阶段：调用`AbstractAutowireCapableBeanFactory#createBeanInstance`方法。
+  * Bean实例化后阶段：调用`AbstractAutowireCapableBeanFactory#populateBean`方法，先根据`InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation`返回值，决定是否执行属性赋值操作，如果返回false表示跳过属性赋值，默认返回true。
+  * Bean属性赋值前阶段：调用`AbstractAutowireCapableBeanFactory#populateBean`方法，逐一调用`InstantiationAwareBeanPostProcessor#postProcessProperties`，该方法如果返回不为null，使用返回值作为新的PropertyValues对实例进行属性赋值。
+  * Bean属性赋值阶段：调用`AbstractAutowireCapableBeanFactory#populateBean`方法。
+  * Bean Aware接口回调阶段：调用`AbstractAutowireCapableBeanFactory#initializeBean`，根据bean实现的Aware接口进行回调。
+  * Bean初始化前阶段：调用`AbstractAutowireCapableBeanFactory#initializeBean`，最终会调用`BeanPostProcessor#postProcessBeforeInitialization`，ApplicationContextAware接口的回调也是在这个时候触发。
+  * Bean初始化阶段：调用`AbstractAutowireCapableBeanFactory#initializeBean`，最终`AbstractAutowireCapableBeanFactory#invokeInitMethods`，依次执行Bean定义的初始化方法。
+  * Bean初始化后阶段：调用`AbstractAutowireCapableBeanFactory#initializeBean`，最终调用`BeanPostProcessor#postProcessAfterInitialization`方法。
+  * Bean初始化完成阶段：调用`DefaultListableBeanFactory#preInstantiateSingletons`，最终调用`SmartInitializingSingleton#afterSingletonsInstantiated`方法。
+  * Bean销毁前阶段：调用`AbstractBeanFactory#destroyBean`，最终调用`DestructionAwareBeanPostProcessor#postProcessBeforeDestruction`。
+  * Bean销毁阶段：调用`AbstractBeanFactory#destroyBean`，最终调用Bean定义的销毁方法。
