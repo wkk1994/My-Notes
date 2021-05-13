@@ -22,7 +22,7 @@ Spring Bean的配置元信息的接口是BeanDefinition，Spring中的实现方�
 
   有三个实现分别是AnnotatedGenericBeanDefinition：基于注解的方式读取BeanDefinition，ConfigurationClassBeanDefinition：基于configclass的方式读取BeanDefinition，ScannedGenericBeanDefinition基于包扫描的方式读取BeanDefinition。
 
-## Spring Bean 属性元信息
+## Spring Bean属性元信息
 
 和Spring Bean属性元信息相关的有：
 
@@ -33,3 +33,10 @@ Spring Bean的配置元信息的接口是BeanDefinition，Spring中的实现方�
 * Bean元信息元素：BeanMetadataElement，只有一个方法`BeanMetadataElement#getSource`，BeanDefinition中都实现了改方法，可以设置属性的来源，在合适的时机进行获取使用。
 
 示例代码：[BeanConfigurationMetadataDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/BeanConfigurationMetadataDemo.java)
+
+## Spring容器配置元信息
+
+Spring中的xml文件的配置的xmlns和xsd之间的关系，以及xml文件的解析类`BeanDefinitionParserDelegate`，解析类中对默认值的处理方式。
+
+> 什么是`outter beans`？在Spring的xml文件中，通过import导入的xml配置，当前xml配置就是导入的xml文件的`outter beans`。
+> schema和dtd的区别
