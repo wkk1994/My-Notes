@@ -127,3 +127,17 @@ Spring中的xml文件的配置的xmlns和xsd之间的关系，以及xml文件的
 |--|--|--|
 |@PostConstruct|替换 XML 元素`<bean init-method="..." />`或InitializingBean|2.5|
 |@PreDestroy|替换 XML 元素`<bean destroy-method="..." />`或DisposableBean|2.5|
+
+## Spring Bean 配置元信息底层实现
+
+Spring BeanDefinition的解析方式主要有三种，分别是XML资源解析，实现类是`XmlBeanDefinitionReader`；Properties资源解析，实现类是`PropertiesBeanDefinitionReader`；Java注解解析，实现类是`AnnotatedBeanDefinitionReader`。其中`XmlBeanDefinitionReader`和`PropertiesBeanDefinitionReader`都是基于资源的解析方式，都实现了`AbstractBeanDefinitionReader`，`AnnotatedBeanDefinitionReader`的解析方式和资源无关，所以并没有实现`AbstractBeanDefinitionReader`。
+
+### Spring XML资源BeanDefinition解析与注册
+
+Spring XML资源BeanDefinition解析与注册的核心类是`XmlBeanDefinitionReader`，底层依赖`BeanDefinitionDocumentReader`。
+
+`BeanDefinitionDocumentReader`的XML解析，使用的是Java DOM Level 3 API；BeanDefinition的解析使用的是`BeanDefinitionParserDelegate`类实现；BeanDefinition的注册使用`BeanDefinitionRegistry`。
+
+`BeanDefinitionDocumentReader`提供了`preProcessXml`和`postProcessXml`方法，用来在xml资源解析完和解析前进行自定义处理，目前这两个方法为空方法。可以通过继承`BeanDefinitionDocumentReader`覆盖这两个方法实现用户的自定义处理，但是需要将自定义的`BeanDefinitionDocumentReader`通过方法`XmlBeanDefinitionReader#setDocumentReaderClass`set到`XmlBeanDefinitionReader`中。
+
+`BeanDefinitionDocumentReader`中对xml资源的解析细节可以参考方法`DefaultBeanDefinitionDocumentReader#doRegisterBeanDefinitions`
