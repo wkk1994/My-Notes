@@ -141,3 +141,9 @@ Spring XML资源BeanDefinition解析与注册的核心类是`XmlBeanDefinitionRe
 `BeanDefinitionDocumentReader`提供了`preProcessXml`和`postProcessXml`方法，用来在xml资源解析完和解析前进行自定义处理，目前这两个方法为空方法。可以通过继承`BeanDefinitionDocumentReader`覆盖这两个方法实现用户的自定义处理，但是需要将自定义的`BeanDefinitionDocumentReader`通过方法`XmlBeanDefinitionReader#setDocumentReaderClass`set到`XmlBeanDefinitionReader`中。
 
 `BeanDefinitionDocumentReader`中对xml资源的解析细节可以参考方法`DefaultBeanDefinitionDocumentReader#doRegisterBeanDefinitions`
+
+### Spring Properties资源BeanDefinition解析与注册
+
+Spring Properties资源BeanDefinition解析与注册的核心API是`PropertiesBeanDefinitionReader`，它的资源主要有字节流(Resource)和字符流(EncodedResource)，字节流默认编码ISO-8859-1，字符流可以指定编码方式。底层存储使用的是java.util.Properties，java.util.Properties继承了Hashtable，是线程安全的。BeanDefinition的解析是依靠内部的API实现，主要是根据properties的key进行不同的属性设置，其中包括一些内置的属性。BeanDefinition的注册也是使用`BeanDefinitionRegistry`。
+
+`PropertiesBeanDefinitionReader`中对Properties资源的解析细节可以参考方法`PropertiesBeanDefinitionReader#registerBeanDefinitions(java.util.Map<?,?>, java.lang.String, java.lang.String)`。
