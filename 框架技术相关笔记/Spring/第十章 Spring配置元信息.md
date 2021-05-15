@@ -74,3 +74,56 @@ Spring中的xml文件的配置的xmlns和xsd之间的关系，以及xml文件的
 |${n}|n表示第n+1个构造参数，比如$1|
 
 基于Properties资源的解析类是`PropertiesBeanDefinitionReader`，解析方式和`XmlBeanDefinitionReader`方式差不多，但是相比于通过xml配置Bean元信息，properties资源的定义方式有很多局限性，不支持的配置很多，比如不支持定义Bean的init-method、是否是primary、不支持自定义bean的name（会根据key的前缀截取为bean的名称）。
+
+## 基于Java注解装载SpringBean配置元信息
+
+### Spring模式注解
+
+在Spring中可以通过注解的方式进行Bean元信息的配置，Spring为了支持DDD（领域驱动设计）的概念，将注解根据不同的作用分成多个模式注解，如下表：
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@Repository|数据仓库模式注解|2.0|
+|@Component|通用组件模式注解|2.5|
+|@Service|服务模式注解|2.5|
+|@Controller|Web控制器模式注解|2.5|
+|@Configuration|配置类模式注解|3.0|
+
+@Repository、@Service、@Controller、@Configuration都是属于@Component的派生注解，在Java中不存在注解继承的概念，所以其他注解通过元标注的形式，将@Component的能力进行继承。
+
+### Spring Bean 定义注解
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@Bean|替换 XML 元素`<bean>`|3.0|
+|@DependsOn|替代 XML 属性`<bean depends-on="..."/>`|3.0|
+|@Lazy|替代 XML 属性`<bean lazy-init="true|falses" />`|3.0|
+|@Primary|替换 XML 元素`<bean primary="true|false" />`|3.0|
+|@Role|替换 XML 元素`<bean role="..." />`|3.1|
+|@Lookup|替代 XML 属性`<bean lookup-method="...">`|4.1|
+
+### Spring Bean依赖注入注解
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@Autowired|Bean 依赖注入，支持多种依赖查找方式|2.5|
+|@Qualifier|细粒度的 @Autowired 依赖查找|2.5|
+
+|Java 注解|场景说明|起始版本|
+|--|--|--|
+|@Resource|类似于 @Autowired|2.5|
+|@Inject|类似于 @Autowired|2.5|
+
+### Spring Bean条件装配注解
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@Profile|配置化条件装配|3.1|
+|@Conditional|编程条件装配|4.0|
+
+### Spring Bean生命周期回调注解
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@PostConstruct|替换 XML 元素`<bean init-method="..." />`或InitializingBean|2.5|
+|@PreDestroy|替换 XML 元素`<bean destroy-method="..." />`或DisposableBean|2.5|
