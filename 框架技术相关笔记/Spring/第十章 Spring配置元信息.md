@@ -211,3 +211,16 @@ Spring IoC配属属性注解：
 |@PropertySources|@PropertySource集合注解|4.0|
 
 @PropertySource和@PropertySources的关系，java8开始支持重复注解，所以可以在一个类上添加多个@PropertySource。
+
+示例代码：[AnnotatedSpringIoCContainerMetadataConfigurationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/AnnotatedSpringIoCContainerMetadataConfigurationDemo.java)
+
+## 基于Extensible XML authoring扩展Spring XML元素
+
+Spring提供了xml扩展机制，让用户可以实现自定义的xml格式，并且根据配置的解析类进行解析。要想实现一个xml扩展，需要的步骤有：
+
+* 编写XML Schema文件：定义XML结构。
+* 自定义NamespaceHandler实现：用来和命名空间进行绑定。
+* 自定义BeanDefinitionParser实现：用来实现XML元素与BeanDefinition的解析。
+* 注册XML扩展：实现命名空间与XML Schema映射。
+
+示例代码：[user.xsd](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/com/wkk/learn/spring/ioc/configuration/metadata/user.xsd) &nbsp;&nbsp; [UserNamespaceHandler.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/UserNamespaceHandler.java) &nbsp;&nbsp; [spring.schemas](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.schemas) &nbsp;&nbsp; [spring.handlers](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.handlers)
