@@ -147,3 +147,67 @@ Spring XML资源BeanDefinition解析与注册的核心类是`XmlBeanDefinitionRe
 Spring Properties资源BeanDefinition解析与注册的核心API是`PropertiesBeanDefinitionReader`，它的资源主要有字节流(Resource)和字符流(EncodedResource)，字节流默认编码ISO-8859-1，字符流可以指定编码方式。底层存储使用的是java.util.Properties，java.util.Properties继承了Hashtable，是线程安全的。BeanDefinition的解析是依靠内部的API实现，主要是根据properties的key进行不同的属性设置，其中包括一些内置的属性。BeanDefinition的注册也是使用`BeanDefinitionRegistry`。
 
 `PropertiesBeanDefinitionReader`中对Properties资源的解析细节可以参考方法`PropertiesBeanDefinitionReader#registerBeanDefinitions(java.util.Map<?,?>, java.lang.String, java.lang.String)`。
+
+### Spring Java注解BeanDefinition解析与注册
+
+核心API：`AnnotatedBeanDefinitionReader`：`AnnotatedBeanDefinitionReader`并没有继承`AbstractBeanDefinitionReader`或者实现`BeanDefinitionReader`，它的资源来源是类对象(java.lang.Class)。
+
+底层实现相关：
+
+* 条件评估 - ConditionEvaluator
+* Bean范围解析 - ScopeMetadataResolver
+* Bean名称生成器 - AnnotationBeanNameGenerator
+* BeanDefinition解析 - 内部 API 实现
+* BeanDefinition处理 - AnnotationConfigUtils.processCommonDefinitionAnnotations
+* BeanDefinition注册 - BeanDefinitionRegistry
+
+粗略的处理流程：
+
+* 1.根据beanClass的生成`AnnotatedGenericBeanDefinition`，这里通过`StandardAnnotationMetadata`反射的形式进行获取。
+  `StandardAnnotationMetadata`属于AnnotationMetadata的实现，使用Java反射的形式获取Class的自省信息，关于`AnnotationMetadata`的实现还有`SimpleAnnotationMetadata`，它通过ASM获取Class信息。
+
+* 2.验证@Conditional条件注解是否满足，不满足return。
+* 3.获取@Scope注解的信息，并组装成`ScopeMetadata`.
+* 4.如果没有指定name，根据名称生成器生成一个name。
+* 5.调用`AnnotationConfigUtils#processCommonDefinitionAnnotations`方法，获取bean上标注的@Primary、@Lazy、@DependsOn、@Role、@Description注解，AnnotatedBeanDefinition进行赋值。
+* 6.构建BeanDefinitionHolder，并registerBeanDefinition。
+
+`AnnotatedBeanDefinitionReader`对BeanDefinition的解析与注册细节可以参考代码`AnnotatedBeanDefinitionReader#doRegisterBean`。
+
+## 基于XML资源装载Spring IoC容器配置元信息
+
+Spring IoC 容器相关 XML 配置
+
+|命名空间|所属模块|Schema 资源 URL|
+|--|--|--|
+|beans|spring-beans|https://www.springframework.org/schema/beans/spring-beans.xsd|
+|context|spring-context|https://www.springframework.org/schema/context/spring-context.xsd|
+|aop|spring-aop|https://www.springframework.org/schema/aop/spring-aop.xsd|
+|tx|spring-tx|https://www.springframework.org/schema/tx/spring-tx.xsd|
+|util|spring-beans|https://www.springframework.org/schema/util/spring-util.xsd|
+|tool|spring-beans|https://www.springframework.org/schema/tool/spring-tool.xsd|
+
+与命名空间相关的有两个重要的文件`META-INF/spring.schemas`和`META-INF/spring.handlers`。
+
+`META-INF/spring.schemas`文件定义了命名空间中schmea资源的所在的地址，一般不会在url地址后加上版本号了，比如`https://www.springframework.org/schema/beans/spring-beans-4.3.xsd`，直接使用`https://www.springframework.org/schema/beans/spring-beans.xsd`有更好的兼容性，能兼容多个版本的，它可以始终获取到最新的版本。
+
+`META-INF/spring.handlers`文件定义了对应命名空间解析的类，比如`http\://www.springframework.org/schema/util=org.springframework.beans.factory.xml.UtilNamespaceHandler`
+
+## 基于Java注解装载Spring IoC容器配置元信息
+
+Spring IoC容器装配注解：
+
+|Spring注解|场景说明|起始版本|
+|--|--|--|
+|@ImportResource|替换XML元素`<import>`|3.0|
+|@Import|导入Configuration Class|3.0|
+|@ComponentScan|扫描指定package下标注Spring模式注解的类|3.1|
+
+Spring IoC配属属性注解：
+
+|Spring 注解|场景说明| 起始版本|
+|--|--|--|
+|@PropertySource|配置属性抽象 PropertySource 注解|3.1|
+|@PropertySources|@PropertySource集合注解|4.0|
+
+@PropertySource和@PropertySources的关系，java8开始支持重复注解，所以可以在一个类上添加多个@PropertySource。
