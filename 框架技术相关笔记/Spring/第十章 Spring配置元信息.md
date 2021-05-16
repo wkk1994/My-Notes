@@ -210,7 +210,7 @@ Spring IoC配属属性注解：
 |@PropertySource|配置属性抽象 PropertySource 注解|3.1|
 |@PropertySources|@PropertySource集合注解|4.0|
 
-@PropertySource和@PropertySources的关系，java8开始支持重复注解，所以可以在一个类上添加多个@PropertySource。
+@PropertySource和@PropertySources的关系，java8开始支持重复注解，所以可以在一个类上添加多个@PropertySource，以替换@PropertySources注解。
 
 示例代码：[AnnotatedSpringIoCContainerMetadataConfigurationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/AnnotatedSpringIoCContainerMetadataConfigurationDemo.java)
 
@@ -224,3 +224,13 @@ Spring提供了xml扩展机制，让用户可以实现自定义的xml格式，�
 * 注册XML扩展：实现命名空间与XML Schema映射。
 
 示例代码：[user.xsd](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/com/wkk/learn/spring/ioc/configuration/metadata/user.xsd) &nbsp;&nbsp; [UserNamespaceHandler.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/UserNamespaceHandler.java) &nbsp;&nbsp; [spring.schemas](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.schemas) &nbsp;&nbsp; [spring.handlers](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.handlers)
+
+## 基于Properties资源装载外部化配置
+
+装载外部化配置有两种方式：基于注解驱动和API编程。
+
+注解驱动主要有`org.springframework.context.annotation.PropertySource`和`org.springframework.context.annotation.PropertySources`两个注解。
+
+使用API编程的方式会使用到类`org.springframework.core.env.PropertySource`和`org.springframework.core.env.PropertySources`。API编程添加 PropertySource 操作必须在 refresh 方法之前完成，否则没有效果。默认先加载的资源会覆盖后面加载的资源，在默认条件下，会加载一些系统默认的资源。
+
+示例代码：[PropertiesSourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/PropertiesSourceDemo.java)
