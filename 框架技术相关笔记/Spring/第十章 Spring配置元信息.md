@@ -234,3 +234,18 @@ Spring提供了xml扩展机制，让用户可以实现自定义的xml格式，�
 使用API编程的方式会使用到类`org.springframework.core.env.PropertySource`和`org.springframework.core.env.PropertySources`。API编程添加 PropertySource 操作必须在 refresh 方法之前完成，否则没有效果。默认先加载的资源会覆盖后面加载的资源，在默认条件下，会加载一些系统默认的资源。
 
 示例代码：[PropertiesSourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/PropertiesSourceDemo.java)
+
+## 基于Yaml资源装载外部化配置
+
+相关API
+
+* org.springframework.beans.factory.config.YamlProcessor
+
+  YamlProcessor的两个派生类：
+
+  * org.springframework.beans.factory.config.YamlMapFactoryBean
+  * org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+
+基于xml的方式装载Yaml资源示例代码：[XmlBasedYamlPropertySourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/XmlBasedYamlPropertySourceDemo.java)
+
+基于@PropertySource注解的方式装载Yaml资源示例代码：[AnnotatedBasedYamlPropertySourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/AnnotatedBasedYamlPropertySourceDemo.java)
