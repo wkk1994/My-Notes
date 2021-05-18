@@ -225,6 +225,37 @@ Spring提供了xml扩展机制，让用户可以实现自定义的xml格式，�
 
 示例代码：[user.xsd](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/com/wkk/learn/spring/ioc/configuration/metadata/user.xsd) &nbsp;&nbsp; [UserNamespaceHandler.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/UserNamespaceHandler.java) &nbsp;&nbsp; [spring.schemas](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.schemas) &nbsp;&nbsp; [spring.handlers](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/resources/META-INF/spring.handlers)
 
+## Extensible XML authoring 扩展原理
+
+触发解析xml的时机：
+
+当调用AbstractApplicationContext#refresh方法时，间接回去调用AbstractApplicationContext#obtainFreshBeanFactory方法，接下来的调用链：
+
+* AbstractRefreshableApplicationContext#refreshBeanFactory
+  * AbstractXmlApplicationContext#loadBeanDefinitions
+    * ...
+      * XmlBeanDefinitionReader#doLoadBeanDefinitions
+        * ...
+          * DefaultBeanDefinitionDocumentReader#parseBeanDefinitions
+            * BeanDefinitionParserDelegate#parseCustomElement
+
+最终会调用到parseCustomElement方法，该方法最终会执行自定义的Handler解析xml生成BeanDefinition。
+
+核心流程：
+
+DefaultBeanDefinitionDocumentReader#parseBeanDefinitions：
+
+* 判断element节点的namespaceUri是否是默认节点beans的；
+* 是默认节点调用方法parseDefaultElement，走默认节点解析逻辑；
+* 不是默认节点调用方法parseCustomElement，走自定义元素解析逻辑。
+
+BeanDefinitionParserDelegate#parseCustomElement(org.w3c.dom.Element, BeanDefinition)：
+
+* 获取element节点的namespaceUri；
+* 根据namespaceUri获取对应的NamespaceHandler：如果NamespaceHandler还没有实例化，就执行实例化和初始化（init方法）操作；
+* 构造 ParserContext；
+* 使用上一步获取到的NamespaceHandler解析元素，获取BeanDefinition。
+
 ## 基于Properties资源装载外部化配置
 
 装载外部化配置有两种方式：基于注解驱动和API编程。
