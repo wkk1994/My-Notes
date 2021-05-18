@@ -249,3 +249,24 @@ Spring提供了xml扩展机制，让用户可以实现自定义的xml格式，�
 基于xml的方式装载Yaml资源示例代码：[XmlBasedYamlPropertySourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/XmlBasedYamlPropertySourceDemo.java)
 
 基于@PropertySource注解的方式装载Yaml资源示例代码：[AnnotatedBasedYamlPropertySourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/configuration-metadata/src/main/java/com/wkk/learn/spring/ioc/configuration/metadata/AnnotatedBasedYamlPropertySourceDemo.java)
+
+## 面试题
+
+* Spring 內建 XML Schema 常见有哪些？
+
+* Spring配置元信息具体有哪些？
+
+  * Bean配置元信息：通过媒介（比如XML、Propertie等），解析成BeanDefinition。
+  * IoC容器配置元信息：通过媒介（比如XML、Properties等），控制IoC容器的行为，比如注解驱动、AOP、事务等。
+  * 外部化配置：通过资源抽象（如Property、Yaml等），控制PropertySource的资源加载和顺序。
+  * Spring Profile：通过外部化配置，提供条件分支流程，比如生产环境下配置、测试环境下配置。
+
+* Extensible XML authoring 的缺点？
+
+  * 高复杂度：开发人员需要熟悉 XML Schema，spring.handlers，spring.schemas 
+以及 Spring API 。
+  * 嵌套元素支持较弱：通常需要使用方法递归或者其嵌套解析的方式处理嵌套（子）元
+素。
+  * XML 处理性能较差：Spring XML 基于 DOM Level 3 API 实现，该 API 便于理解，然
+而性能较差。
+  * XML 框架移植性差：很难适配高性能和便利性的 XML 框架，如 JAXB。
