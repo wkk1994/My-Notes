@@ -47,3 +47,21 @@ JDK1.8内置的协议实现：
 通过 Java Properties的`java.protocol.handler.pkgs`指定实现类包名，实现类名必须为“Handler”。如果存在多包名指定，通过分隔符 “|”。需要注意的是一般都在Java启动命令中通过—D传递这个参数，如果启动后或启动中在代码中设置，可能参数`java.protocol.handler.pkgs`以及读取完成了，不会起作用。
 
 扩展协议的具体原理参考`java.net.URL#getURLStreamHandler`。
+
+## Spring 资源接口
+
+Spring内建的资源接口：
+
+|类型| 接口|
+|--|--|
+|输入流| org.springframework.core.io.InputStreamSource|
+|只读资源| org.springframework.core.io.Resource|
+|可写资源| org.springframework.core.io.WritableResource|
+|编码资源| org.springframework.core.io.support.EncodedResource|
+|上下文资源| org.springframework.core.io.ContextResource: 应用场景比较少，一般给Servlet使用|
+
+* InputStreamSource：只有一个getInputStream方法，也就是该接口的实现类允许获取资源的输入流。
+* Resource：只读资源，继承了InputStreamSource接口，也具有获取输入流功能。同时具有getURL、getURI、getFile等功能，对资源只提供读取功能的接口。
+* WritableResource：可写资源，继承Resource，有isWritable来判断资源是否可写，同时可以getOutputStream获取输出流。
+* EncodedResource：编码资源，继承InputStreamSource，针对需要指定资源编码如UTF-8这种的资源。属性有Resource对象，主要通过getInputStreamReader来实现编码。
+* ContextResource：上下文资源，一般给Servlet引擎使用。
