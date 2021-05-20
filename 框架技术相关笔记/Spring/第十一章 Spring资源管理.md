@@ -65,3 +65,67 @@ Spring内建的资源接口：
 * WritableResource：可写资源，继承Resource，有isWritable来判断资源是否可写，同时可以getOutputStream获取输出流。
 * EncodedResource：编码资源，继承InputStreamSource，针对需要指定资源编码如UTF-8这种的资源。属性有Resource对象，主要通过getInputStreamReader来实现编码。
 * ContextResource：上下文资源，一般给Servlet引擎使用。
+
+## Spring内建Resource实现
+
+|资源来源| 资源协议| 实现类|
+|--|--|--|
+|Bean定义|无| org.springframework.beans.factory.support.BeanDefinitionResource|
+|数组| 无| org.springframework.core.io.ByteArrayResource|
+|类路径| classpath:/| org.springframework.core.io.ClassPathResource|
+|文件系统| file:/| org.springframework.core.io.FileSystemResource|
+|URL| URL 支持的协议| org.springframework.core.io.UrlResource|
+|ServletContext| 无| org.springframework.web.context.support.ServletContextResource|
+
+BeanDefinitionResource一般使用的很少，它的内部将BeanDefinition作为变量进行组合。
+ByteArrayResource内部使用一个byte[]数组存储资源。
+UrlResource会根据传入的URL先调用openConnection()后通过URLConnection#getInputStream()获取资源。
+
+> org.springframework.core.io.Resource中的方法和属性和sun.misc.Resource中有很多相似的，可以看出是Spring借鉴了Java的资源实现。
+
+## Spring Resource接口扩展
+
+Spring对Resource接口进行了扩展，实现了WritableResource（可写资源）和EncodedResource（编码资源）。
+
+可写资源接口：
+
+* org.springframework.core.io.WritableResource的实现类有：
+
+  * org.springframework.core.io.FileSystemResource
+  * org.springframework.core.io.FileUrlResource（@since 5.0.2）
+  * org.springframework.core.io.PathResource（@since 4.0 & @Deprecated）
+
+编码资源接口：
+
+* org.springframework.core.io.support.EncodedResource
+
+带有字符编码的FileSystemResource使用示例：[EncodeFileSystemResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceDemo.java)
+
+## Spring资源加载
+
+Spring的资源需要通过资源加载器进行加载，资源加载器接口是`org.springframework.core.io.ResourceLoader`，它的一个重要实现是`org.springframework.core.io.DefaultResourceLoader`，Spring中的资源加载器很多都是实现了该类。
+
+`org.springframework.core.io.DefaultResourceLoader`的主要实现类有：
+
+* org.springframework.core.io.FileSystemResourceLoader
+* org.springframework.core.io.ClassRelativeResourceLoader
+* org.springframework.context.support.AbstractApplicationContext
+
+通过FileSystemResourceLoader加载FileSystemResource代码示例：[EncodeFileSystemResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceDemo.java)
+
+## Spring通配路径资源加载器
+
+Spring的资源加载器，除了上面常规的加载器之外，还实现了通配路径的资源加载方式，通配路径资源加载器的接口是：`org.springframework.core.io.support.ResourcePatternResolver`，实现类有`org.springframework.core.io.support.PathMatchingResourcePatternResolver`。
+
+路径匹配器接口：`org.springframework.util.PathMatcher`，内建的默认实现是`org.springframework.util.AntPathMatcher`，它是Ant风格的路径匹配模式。
+
+Ant通配路径实现细节参考代码：`PathMatchingResourcePatternResolver#getResources`。
+
+## Spring通配路径资源扩展
+
+要对Spring通配路径资源进行扩展有两种方式：重写PathMatchingResourcePatternResolver类和实现PathMatcher，实现PathMatcher比较简单，具体步骤为：
+
+* 1.实现org.springframework.util.PathMatcher类；
+* 2.重制PathMatcher：通过方法PathMatchingResourcePatternResolver#setPathMatcher将默认的AntPathMatcher替换为自定义的PathMatcher实现类。
+
+扩展Spring通配路径资源示例：[CustomizedResourcePatternResolverDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/CustomizedResourcePatternResolverDemo.java)
