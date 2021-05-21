@@ -129,3 +129,31 @@ Ant通配路径实现细节参考代码：`PathMatchingResourcePatternResolver#g
 * 2.重制PathMatcher：通过方法PathMatchingResourcePatternResolver#setPathMatcher将默认的AntPathMatcher替换为自定义的PathMatcher实现类。
 
 扩展Spring通配路径资源示例：[CustomizedResourcePatternResolverDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/CustomizedResourcePatternResolverDemo.java)
+
+## 依赖注入Spring Resource
+
+Spring Resource的注入也可以使用通过@Value注解实现依赖注入，也支持通配符的形式注入资源。
+
+如：
+
+```java
+@Value(“classpath:/...”) 
+private Resource resource;
+
+@Value(“classpath:\/*.properties”) 
+private Resource propertiesResource;
+```
+
+依赖注入Resource示例：[InjectionResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/InjectionResourceDemo.java)
+
+## 依赖注入ResourceLoader
+
+依赖注入ResourceLoader的方式通常有三种，分别是：
+
+* 实现ResourceLoaderAware回调；
+* @Autowired注入ResourceLoader；
+* 注入 ApplicationContext 作为 ResourceLoader
+
+这三种方式注入的对象都是同一个对象，都是AbstractApplicationContext对象。
+
+依赖注入ResourceLoader示例：[InjectionResourceLoaderDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/InjectionResourceLoaderDemo.java)
