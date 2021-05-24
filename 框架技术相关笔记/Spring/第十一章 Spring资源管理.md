@@ -157,3 +157,26 @@ private Resource propertiesResource;
 这三种方式注入的对象都是同一个对象，都是AbstractApplicationContext对象。
 
 依赖注入ResourceLoader示例：[InjectionResourceLoaderDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/InjectionResourceLoaderDemo.java)
+
+## 面试题
+
+* Spring配置资源中有哪些常见的类型？
+
+  Xml资源
+  Properties资源
+  YAML资源
+
+* 请列举不同类型Spring配置资源？
+
+  * XML资源
+    * 普通的BeanDefinition XML配置资源：*.xml
+    * Spring Schema资源：*.xsd
+  * Properties资源
+    * 普通 Properties 格式资源 - *.properties
+    * Spring Handler 实现类映射文件 - META-INF/spring.handlers
+    * Spring Schema 资源映射文件 - META-INF/spring.schemas
+  * YAML资源
+    * 普通YAML资源配置：\*.yaml或*.yml
+
+* Java 标准资源管理扩展的步骤？
+
