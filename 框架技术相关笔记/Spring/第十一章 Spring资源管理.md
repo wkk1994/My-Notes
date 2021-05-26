@@ -52,9 +52,20 @@ JDK1.8内置的协议实现：
 
 Java标准资源管理的扩展方式有三种，实现方式分别为：
 
-* 实现URLStreamHandler并放置在sun.net.www.protocol.${协议名}.Handler包下，Java在获取Resource会自动读取该包下的协议扩展。
+* 方式一：实现URLStreamHandler并放置在sun.net.www.protocol.${协议名}.Handler包下，Java在获取Resource会自动读取该包下的协议扩展。
 
-  [EncodeFileSystemResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceDemo.java)
+  自定义Java协议扩展示例代码：[XHandlerTest.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/sun/net/www/protocol/x/XHandlerTest.java)
+
+* 方式二：
+  * 实现 URLStreamHandler；
+  * 添加 -Djava.protocol.handler.pkgs 启动参数，指向 URLStreamHandler 实现类的包下。
+  
+  自定义Java协议扩展示例代码：[Handler.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/springx/Handler.java)
+  启动添加参数：`-Djava.protocol.handler.pkgs=com.wkk.learn.spring.resource`
+
+* 方式三：实现URLStreamHandlerFactory并传递到 URL 之中。
+
+  自定义Java协议扩展示例代码：[MySpringXURLStreamHandlerFactory.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/springx/MySpringXURLStreamHandlerFactory.java)
 
 ## Spring 资源接口
 
