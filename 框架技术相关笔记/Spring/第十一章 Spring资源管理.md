@@ -48,6 +48,14 @@ JDK1.8内置的协议实现：
 
 扩展协议的具体原理参考`java.net.URL#getURLStreamHandler`。
 
+## Java标准资源管理扩展
+
+Java标准资源管理的扩展方式有三种，实现方式分别为：
+
+* 实现URLStreamHandler并放置在sun.net.www.protocol.${协议名}.Handler包下，Java在获取Resource会自动读取该包下的协议扩展。
+
+  [EncodeFileSystemResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceDemo.java)
+
 ## Spring 资源接口
 
 Spring内建的资源接口：
@@ -111,7 +119,7 @@ Spring的资源需要通过资源加载器进行加载，资源加载器接口�
 * org.springframework.core.io.ClassRelativeResourceLoader
 * org.springframework.context.support.AbstractApplicationContext
 
-通过FileSystemResourceLoader加载FileSystemResource代码示例：[EncodeFileSystemResourceDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceDemo.java)
+通过FileSystemResourceLoader加载FileSystemResource代码示例：[EncodeFileSystemResourceLoaderDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/resource/src/main/java/com/wkk/learn/spring/resource/EncodeFileSystemResourceLoaderDemo.java)
 
 ## Spring通配路径资源加载器
 
@@ -180,3 +188,10 @@ private Resource propertiesResource;
 
 * Java 标准资源管理扩展的步骤？
 
+  * 简易实现
+    * 实现 URLStreamHandler 并放置在 sun.net.www.protocol.${protocol}.Handler 包下
+  * 自定义实现
+    * 实现 URLStreamHandler 
+    * 添加 -Djava.protocol.handler.pkgs 启动参数，指向 URLStreamHandler 实现类的包下
+  * 高级实现
+    * 实现 URLStreamHandlerFactory 并传递到 URL 之中
