@@ -190,3 +190,12 @@ protected void initMessageSource() {
 **Spring中ApplicationContext对MessageSource的实现：**
 
 ApplicationContext接口继承了MessageSource接口，说明ApplicationContext子类提供了MessageSource的能力，其中AbstractApplicationContext实现MessageSource能力的方式是，在initMessageSource中将MessageSource实例作为内部属性保存，通过这个属性提供了MessageSource的能力。
+
+## Spring Boot为什么新建MssageSource Bean
+
+通过上面可以知道AbstractApplicationContext#initMessageSource方法已经决定了MessageSource内建实现，如果当前BeanFactory中不存在时会默认创建一个空的MessageSource。Spring Boot会在这之前创建一个MessageSource实例，通过`MessageSourceAutoConfiguration#messageSource`方法。Spring Boot这样做的主要原因有：
+
+* 通过这种外部化配置的方式简化MessageSource Bean的创建：因为Spring Boot的出现就是为了简化Spring配置。
+* Spring Boot基于Bean Validation校验非常普遍，需要国际化文本的支持。
+
+Spring Boot场景下自定义MessageSource示例代码：[CustomizedMessageSourceBeanDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/i18n/src/main/java/com/wkk/learn/spring/ioc/i18n/CustomizedMessageSourceBeanDemo.java)
