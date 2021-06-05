@@ -199,3 +199,30 @@ ApplicationContext接口继承了MessageSource接口，说明ApplicationContext�
 * Spring Boot基于Bean Validation校验非常普遍，需要国际化文本的支持。
 
 Spring Boot场景下自定义MessageSource示例代码：[CustomizedMessageSourceBeanDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/i18n/src/main/java/com/wkk/learn/spring/ioc/i18n/CustomizedMessageSourceBeanDemo.java)
+
+## 面试题
+
+* Spring国际化接口有哪些？
+
+  * 核心接口 - MessageSource
+  * 层次性接口 - org.springframework.context.HierarchicalMessageSource
+
+* Spring有哪些MessageSource内建实现？
+  * org.springframework.context.support.ResourceBundleMessageSource
+  * org.springframework.context.support.ReloadableResourceBundleMessageSource
+  * org.springframework.context.support.StaticMessageSource
+    StaticMessageSource是通过addMessage方法添加code和msg资源，属于静态资源的方式。
+  * org.springframework.context.support.DelegatingMessageSource
+    空的MessageSource实现。
+
+* 如何实现配置自动更新 MessageSource？
+
+  要实现自动更新MessageSource的关键步骤：
+  * 初始化获取资源；
+  * 监听资源的变化事件；
+  * 重载资源。
+
+  主要使用的技术：
+  * Java NIO 2：java.nio.file.WatchService：Java NIO技术，主要实现文件事件的监听。
+  * Java Concurrency : java.util.concurrent.ExecutorService：Java线程池，主要用来进行文件事件的异步处理。
+  * Spring：org.springframework.context.support.AbstractMessageSource：使用AbstractMessageSource中一部分通用的资源处理方法，可以简化自定义MessageSource的实现。
