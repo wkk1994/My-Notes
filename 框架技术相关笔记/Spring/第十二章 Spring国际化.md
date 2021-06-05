@@ -146,3 +146,47 @@ ResourceBundleMessageSource和ReloadableResourceBundleMessageSource都间接继�
 ResourceBundleMessageSource的resolveCode方法通过basename获取ResourceBundle，然后再获取MessageFormat，其中MessageFormat的获取进行了缓存设计，避免同一个MessageFormat的多次创建。
 
 ReloadableResourceBundleMessageSource的resolveCode方法，是先获取PropertiesHolder，PropertiesHolder中保存有properties的资源信息，并且会根据properties资源的修改时间，来确定是否需要重新加载资源。
+
+## MessageSource内建依赖
+
+Spring提供了MessageSource内建Bean依赖，其中内建Bean可能的来源有：
+
+* 预注册Bean名称为messageSource，类型为MessageSource的Bean实例。
+* 默认内建实现DelegatingMessageSource，DelegatingMessageSource是具有层次性实现的MessageSource对象。
+
+Spring中MessageSource初始化过程参考AbstractApplicationContext#initMessageSource代码：
+
+```java
+protected void initMessageSource() {
+    ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+    if (beanFactory.containsLocalBean(MESSAGE_SOURCE_BEAN_NAME)) {
+        this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
+        // Make MessageSource aware of parent MessageSource.
+        if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource) {
+            HierarchicalMessageSource hms = (HierarchicalMessageSource) this.messageSource;
+            if (hms.getParentMessageSource() == null) {
+                // Only set parent context as parent MessageSource if no parent MessageSource
+                // registered already.
+                hms.setParentMessageSource(getInternalParentMessageSource());
+            }
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("Using MessageSource [" + this.messageSource + "]");
+        }
+    }
+    else {
+        // Use empty MessageSource to be able to accept getMessage calls.
+        DelegatingMessageSource dms = new DelegatingMessageSource();
+        dms.setParentMessageSource(getInternalParentMessageSource());
+        this.messageSource = dms;
+        beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
+        if (logger.isTraceEnabled()) {
+            logger.trace("No '" + MESSAGE_SOURCE_BEAN_NAME + "' bean, using [" + this.messageSource + "]");
+        }
+    }
+}
+```
+
+**Spring中ApplicationContext对MessageSource的实现：**
+
+ApplicationContext接口继承了MessageSource接口，说明ApplicationContext子类提供了MessageSource的能力，其中AbstractApplicationContext实现MessageSource能力的方式是，在initMessageSource中将MessageSource实例作为内部属性保存，通过这个属性提供了MessageSource的能力。
