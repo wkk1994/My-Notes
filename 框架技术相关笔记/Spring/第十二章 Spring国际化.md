@@ -128,3 +128,21 @@ if (obj == null) {
     if (arg == null) arg = "null";
 }
 ```
+
+## MessageSource开箱即用实现
+
+Spring的国际化接口`org.springframework.context.MessageSource`提供了两个开箱即用的实现，分别是：
+
+* 基于ResourceBundle + MessageFormat组合MessageSource实现：`org.springframework.context.support.ResourceBundleMessageSource`
+
+  ResourceBundleMessageSource的实现是通过ResourceBundle作为资源的存储，MessageFormat作为资源的解析。并且可以通过setDefaultEncoding方法设置默认的编码方式，默认是ISO-8859-1。
+
+* 可重载的基于Properties + MessageFormat组合MessageSource实现：`org.springframework.context.support.ReloadableResourceBundleMessageSource`
+
+ResourceBundleMessageSource和ReloadableResourceBundleMessageSource的getMessage(java.lang.String, java.lang.Object[], java.lang.String, java.util.Locale)方法实现细节分析：
+
+ResourceBundleMessageSource和ReloadableResourceBundleMessageSource都间接继承了AbstractMessageSource，并且没有重写getMessage方法，它们各自实现了AbstractMessageSource#resolveCode方法，它是用来获取MessageFormat的。
+
+ResourceBundleMessageSource的resolveCode方法通过basename获取ResourceBundle，然后再获取MessageFormat，其中MessageFormat的获取进行了缓存设计，避免同一个MessageFormat的多次创建。
+
+ReloadableResourceBundleMessageSource的resolveCode方法，是先获取PropertiesHolder，PropertiesHolder中保存有properties的资源信息，并且会根据properties资源的修改时间，来确定是否需要重新加载资源。
