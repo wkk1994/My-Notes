@@ -45,3 +45,26 @@ public class UserLoginValidator implements Validator {
    }
 }
 ```
+
+## Errors接口设计
+
+* 接口职责
+  * 数据绑定和校验错误收集接口，与 Java Bean 和其属性有强关联性
+* 核心方法
+  * reject 方法（重载）：收集错误文案
+  * rejectValue 方法（重载）：收集对象字段中的错误文案，比如上面登陆的密码长度不符合时。
+* 配套组件
+  * Java Bean 错误描述：org.springframework.validation.ObjectError
+  * Java Bean 属性错误描述：org.springframework.validation.FieldError
+
+## Errors文案来源
+
+Errors文案生成步骤：
+
+* 选择Errors实现（如：org.springframework.validation.BeanPropertyBindingResult）
+* 调用 reject 或 rejectValue 方法
+* 获取 Errors 对象中 ObjectError 或 FieldError
+* 将ObjectError 或 FieldError 中的 code 和 args，关联 MessageSource 实现（如：
+ResourceBundleMessageSource）
+
+Errors错误文案示例代码：[ErrorsMessageDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/validation/src/main/java/com/wkk/learn/spring/ioc/validation/ErrorsMessageDemo.java)
