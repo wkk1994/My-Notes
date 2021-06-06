@@ -68,3 +68,50 @@ Errors文案生成步骤：
 ResourceBundleMessageSource）
 
 Errors错误文案示例代码：[ErrorsMessageDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/validation/src/main/java/com/wkk/learn/spring/ioc/validation/ErrorsMessageDemo.java)
+
+## 自定义Validator
+
+自定义Validator需要实现org.springframework.validation.Validator 接口
+
+* 实现supports 方法
+* 实现 validate 方法
+  * 通过 Errors 对象收集错误
+    * ObjectError：对象（Bean）错误：
+    * FieldError：对象（Bean）属性（Property）错误
+  * 通过 ObjectError 和 FieldError 关联 MessageSource 实现获取最终文案
+
+自定义Validator示例代码：[ValidatorDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/validation/src/main/java/com/wkk/learn/spring/ioc/validation/ValidatorDemo.java)
+
+## Validator的救赎
+
+Spring校验中Validator接口整体比较难用，不仅需要传入校验的对象，还需要一个Errors实例，Errors又有多个实现。为了实现易用性，Validator和Bean Validation进行了适配。Bean Validation是标准的Java EE技术。
+
+Bean Validation 与 Validator 适配：
+
+* 核心组件 - org.springframework.validation.beanvalidation.LocalValidatorFactoryBean：对Bean Validation进行的适配实现。
+* 依赖 Bean Validation - JSR-303 or JSR-349 provider
+* Bean 方法参数校验 - org.springframework.validation.beanvalidation.MethodValidationPostProcessor：通过后置AOP拦截的方式，将@Validated注解的类进行拦截，在调用该类的接口时加上对应的校验。
+
+Spring Bean Validation整合示例代码：[SpringBeanValidationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/validation/src/main/java/com/wkk/learn/spring/ioc/validation/SpringBeanValidationDemo.java)
+
+> Bean Validation和Hibernate Validation：Bean Validation的能力主要是由Hibernate Validation实现的。
+
+## 面试题
+
+* Spring 校验接口是哪个？
+
+  org.springframework.validation.Validator
+
+* Spring 有哪些校验核心组件？
+
+  * 检验器：org.springframework.validation.Validator
+  * 错误收集器：org.springframework.validation.Errors
+  * Java Bean 错误描述：org.springframework.validation.ObjectError
+  * Java Bean 属性错误描述：org.springframework.validation.FieldError
+  * Bean Validation 适配：org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
+
+* 请通过示例演示 Spring Bean 的校验？
+
+  下章数据绑定。
+
+> Spring的校验和国际化都属于中间环节，这些能力都是为了后面的数据转换和数据绑定等来服务的。但是这些能力都是Spring内部的组件，属于比较细节的部分，在日常开发中基本使用不到。但是这有助于对框架的扩展进行帮助，甚至对未来设计一些细节、抽象思想等更有帮助。
