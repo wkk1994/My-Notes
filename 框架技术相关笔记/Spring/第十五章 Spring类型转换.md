@@ -161,3 +161,11 @@ ConditionalGenericConverter接口通过继承GenericConverter和ConditionalConve
 [PropertiesToStringConverter.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/conversion/src/main/java/com/wkk/learn/spring/ioc/conversion/PropertiesToStringConverter.java)
 [property-editors-context.xml](https://github.com/wkk1994/spring-ioc-learn/blob/master/conversion/src/main/META-INF/property-editors-context.xml)
 
+## 统一类型转换服务ConverterService
+
+`org.springframework.core.convert.ConversionService`内置实现：
+
+* GenericConversionService：通用ConverterService模板实现，不内置转化器实现。
+* DefaultConversionService：基础ConverterService实现，内置常用的转化器实现。方法`DefaultConversionService#addDefaultConverters`通过ConverterRegistry进行转化器的注册。
+* FormattingConversionService：通用 Formatter + GenericConversionService 实现，不内置转化器和Formatter 实现。
+* DefaultFormattingConversionService：DefaultConversionService + 格式化 实现（如：JSR-354 Money & Currency, JSR-310 Date-Time）。
