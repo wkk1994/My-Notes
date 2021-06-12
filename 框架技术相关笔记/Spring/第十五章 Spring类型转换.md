@@ -160,3 +160,4 @@ ConditionalGenericConverter接口通过继承GenericConverter和ConditionalConve
 扩展Spring类型转换示例：
 [PropertiesToStringConverter.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/conversion/src/main/java/com/wkk/learn/spring/ioc/conversion/PropertiesToStringConverter.java)
 [property-editors-context.xml](https://github.com/wkk1994/spring-ioc-learn/blob/master/conversion/src/main/META-INF/property-editors-context.xml)
+
