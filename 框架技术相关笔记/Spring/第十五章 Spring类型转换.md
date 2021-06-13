@@ -169,3 +169,48 @@ ConditionalGenericConverter接口通过继承GenericConverter和ConditionalConve
 * DefaultConversionService：基础ConverterService实现，内置常用的转化器实现。方法`DefaultConversionService#addDefaultConverters`通过ConverterRegistry进行转化器的注册。
 * FormattingConversionService：通用 Formatter + GenericConversionService 实现，不内置转化器和Formatter 实现。
 * DefaultFormattingConversionService：DefaultConversionService + 格式化 实现（如：JSR-354 Money & Currency, JSR-310 Date-Time）。
+
+## ConversionService作为依赖
+
+类型转换器底层接口 - org.springframework.beans.TypeConverter：
+
+* 起始版本：Spring2.0
+* 核心方法：convertIfNecessary重载方法，方法的语义是如果可以转换就进行转换，相当于实现了`ConditionalConverter#matches`和`Converter#convert`两个方法的功能。
+* 抽象实现：org.springframework.beans.TypeConverterSupport
+* 简单实现：org.springframework.beans.SimpleTypeConverter
+
+类型转换器底层抽象实现 - org.springframework.beans.TypeConverterSupport
+
+* 实现接口：org.springframework.beans.TypeConverter
+* 扩展实现：org.springframework.beans.PropertyEditorRegistrySupport
+
+  TypeConverterSupport继承了PropertyEditorRegistrySupport，因此它也有了注册PropertyEditor的能力。
+
+* 委派实现：org.springframework.beans.TypeConverterDelegate
+
+  TypeConverterSupport将TypeConverterDelegate通过内部属性作为依赖，在进行类型转换时通过委派给TypeConverterDelegate来实现的。
+
+类型转换器底层委派实现 - org.springframework.beans.TypeConverterDelegate：
+
+* 构造来源 - org.springframework.beans.AbstractNestablePropertyAccessor 实现
+  * org.springframework.beans.BeanWrapperImpl
+
+  TypeConverterDelegate的创建来自AbstractNestablePropertyAccessor，在AbstractNestablePropertyAccessor的构造器中会创建它所依赖的TypeConverterDelegate。而AbstractNestablePropertyAccessor的实现类有BeanWrapperImpl，在BeanWrapperImpl的构造器中会调用AbstractNestablePropertyAccessor的构造器进而进行TypeConverterDelegate实例化。
+
+* 依赖 - java.beans.PropertyEditor 实现
+  * 默认內建实现 - PropertyEditorRegistrySupport#registerDefaultEditors
+
+  TypeConverterDelegate通过将PropertyEditorRegistrySupport作为内部属性来进行依赖，PropertyEditorRegistrySupport中包含了conversionService属性和注册的PropertyEditor，其中包括默认的PropertyEditor和自定义的PropertyEditor。
+
+* 可选依赖 - org.springframework.core.convert.ConversionService 实现
+
+  TypeConverterDelegate通过`PropertyEditorRegistrySupport#getConversionService`获取ConversionService的实现，但是不是强制的可以为null。
+
+> TypeConverterDelegate#convertIfNecessnary方法的实现中，通过PropertyEditor或ConversionService进行类型转换。
+
+ConversionService的来源过程：
+
+在`AbstractApplicationContext#finishBeanFactoryInitialization`方法中获取ConversionService实例，并通过`AbstractBeanFactory#setConversionService`方法保存ConversionService实例。
+在进行创建bean实例时，调用链为：createBean -> doCreateBean -> createBeanInstance -> initBeanWrapper，最终在initBeanWrapper方法中通过BeanWrapper的setConversionService方法将`AbstractBeanFactory#getConversionService`中获取的ConversionService实例进行设置。
+
+> 这里的PropertyEditorRegistrySupport的实现可能是BeanWrapperImpl，所以形成了循环依赖。
