@@ -214,3 +214,21 @@ ConversionService的来源过程：
 在进行创建bean实例时，调用链为：createBean -> doCreateBean -> createBeanInstance -> initBeanWrapper，最终在initBeanWrapper方法中通过BeanWrapper的setConversionService方法将`AbstractBeanFactory#getConversionService`中获取的ConversionService实例进行设置。
 
 > 这里的PropertyEditorRegistrySupport的实现可能是BeanWrapperImpl，所以形成了循环依赖。
+
+## 面试题
+
+* Spring 类型转换实现有哪些？
+
+  基于 JavaBeans PropertyEditor 接口实现；
+  Spring 3.0+ 通用类型转换实现。
+
+* Spring 类型转换器接口有哪些？
+
+  * 类型转换接口 - org.springframework.core.convert.converter.Converter
+  * 通用类型转换接口 - org.springframework.core.convert.converter.GenericConverter
+  * 类型条件接口 - org.springframework.core.convert.converter.ConditionalConverter
+  * 综合类型转换接口 - org.springframework.core.convert.converter.ConditionalGenericConverter
+
+* TypeDescriptor 是如何处理泛型？
+
+  下章解答。
