@@ -80,3 +80,39 @@ Spring支持使用注解的方式注册事件监听器，API：org.springframewo
       System.out.println("接收到Spring事件：" + event);
   });
   ```
+
+## Spring事件发布器
+
+通过Spring发布事件的方式：
+
+* 方法一：通过ApplicationEventPublisher发布Spring事件
+  * 获取ApplicationEventPublisher的方式只能通过依赖注入，使用ApplicationEventPublisherAware回调注入。
+
+* 方法二：通过ApplicationEventMulticaster发布Spring事件
+  * 获取ApplicationEventMulticaster的方式可以通过依赖注入和依赖查找。
+
+ApplicationEventPublisher发布Spring事件示例：[ApplicationEventPublisherDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/ApplicationEventPublisherDemo.java)
+
+## Spring层次性上下文事件传播
+
+当Spring应用出现多层次Spring应用上下文（ApplicationContext）时，如SpringMVC、SpringBoot或SpringCloud场景下，由子ApplicationContext发起Spring事件可能会传递到其Parent ApplicationContext（直到Root）的过程。
+
+如何避免事件的传播：
+
+* 定位Spring事件源（ApplicationContext）进行过滤处理。
+* 在事件监听器中添加逻辑判断，如果当前事件已经处理过，就不处理了。
+
+Spring的事件在上下文中传播的代码可以参考`org.springframework.context.support.AbstractApplicationContext#publishEvent(java.lang.Object, org.springframework.core.ResolvableType)`中的：
+
+```text
+if (this.parent != null) {
+    if (this.parent instanceof AbstractApplicationContext) {
+        ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+    }
+    else {
+        this.parent.publishEvent(event);
+    }
+}
+```
+
+层次性Spring事件传播示例：[HierarchicalSpringEventPropagateDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/HierarchicalSpringEventPropagateDemo.java)
