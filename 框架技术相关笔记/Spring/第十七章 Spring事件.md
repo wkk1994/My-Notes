@@ -43,3 +43,40 @@ ApplicationContextEvent是ApplicationEvent的扩展，ApplicationContextEvent和
 * org.springframework.context.event.ContextRefreshedEvent
 * org.springframework.context.event.ContextStartedEvent
 * org.springframework.context.event.ContextStoppedEvent
+
+## 基于接口的Spring事件监听器
+
+Spring的事件监听器也遵循规则，实现了Java的标准事件监听器java.util.EventListener。
+
+* 核心API：org.springframework.context.ApplicationListener
+* 处理方法：onApplicationEvent(ApplicationEvent)
+* 事件类型：org.springframework.context.ApplicationEvent
+
+可以看出ApplicationListener只有一个事件监听的方法`onApplicationEvent`，所以说ApplicationListener不同于Java的一些事件监听器，它只关注某一个事件，或者说它一次只处理一个事件。可以说ApplicationListener是单一的设计原则。
+
+基于接口的Spring事件监听示例：[ApplicationListenerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/ApplicationListenerDemo.java)
+
+## 基于注解的Spring事件监听器
+
+Spring支持使用注解的方式注册事件监听器，API：org.springframework.context.event.EventListener，它的特性有：
+
+* 支持多ApplicationEvent类型，没有接口的约束。
+* 支持在方法上注释。
+* 支持异步执行，只需要在方法上添加@Async，并且激活异步执行（@EnableAsync）
+* 支持泛型类型事件。
+* 配合@Order注解，可以实现顺序控制。
+
+基于注解实现Spring事件监听器：[AnnotationApplicationListenerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/AnnotationApplicationListenerDemo.java)
+
+## 注册Spring ApplicationListener
+
+* 方法一：ApplicationListener作为Spring Bean注册
+
+* 方法二：使用ConfigurableApplicationContext API注册
+
+  ```java
+  // 注册事件监听
+  applicationContext.addApplicationListener(event -> {
+      System.out.println("接收到Spring事件：" + event);
+  });
+  ```
