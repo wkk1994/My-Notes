@@ -116,3 +116,44 @@ if (this.parent != null) {
 ```
 
 层次性Spring事件传播示例：[HierarchicalSpringEventPropagateDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/HierarchicalSpringEventPropagateDemo.java)
+
+## Spring内建事件
+
+ApplicationContextEvent派生事件：
+
+* ContextRefreshedEvent：Spring应用上下文就绪事件
+* ContextStartedEvent：Spring上下文启动事件
+* ContextStopedEvent：Spring上下文停止事件
+* ContextClosedEvent：Spring上下文关闭事件
+
+在调用Spring上下文refresh、start、stop、close方法时会触发对应的事件，ApplicationContext接口继承了ApplicationEventPublisher，所以Spring上下文的实现类都实现了事件发生的接口publishEvent，具有事件发送能力。
+
+> start 和 stop 方法是一种辅助的特性，通常使用不多。
+
+## Spring 4.2 Payload事件
+
+Spring Payload事件API：org.springframework.context.PayloadApplicationEvent，它的使用场景是：简化Spring事件的发送，关注源事件本身，在调用publishEvent(Object)方法发布事件时，它会将Object作为source，构建出一个PayloadApplicationEvent实例，作为事件来传递。
+
+发送方法：ApplicationEventPublisher#publishEvent(java.lang.Object)
+
+PayloadApplicationEvent为什么不是一个良好的扩展？
+
+* PayloadApplicationEvent本身是用来作为Spring框架内部使用，但是内部使用的很少，而且是public，允许继承。
+* 在继承PayloadApplicationEvent的时候不能简单继承，要指定实现类的具体化否则报错`MyPayloadApplicationEvent<String> extends PayloadApplicationEvent<String>`。
+* 在发送事件时，如果是普通的事件使用publishEvent(java.lang.Object)方法就好，它会转换成PayloadApplicationEvent，没必要在创建一个PayloadApplicationEvent实例进行发送。
+* 在事件监听时，只能监听PayloadApplicationEvent，不能具体到监听泛型具体化的消息内容，比如PayloadApplicationEvent\<String>，这是一个局限性。
+
+扩展PayloadApplicationEvent实现示例：[PayloadApplicationEventDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/PayloadApplicationEventDemo.java)
+
+## 自定义Spring事件
+
+* 1.扩展org.springframework.context.ApplicationEvent；
+* 2.实现org.springframework.context.ApplicationListener；
+* 3.注册实现的ApplicationListener；
+* 4.发布扩展的ApplicationEvent事件。
+
+自定义Spring事件示例：
+
+[MySpringEvent.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEvent.java)
+[MySpringEventListener.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEventListener.java)
+[MySpringEventDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEventDemo.java)
