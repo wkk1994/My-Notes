@@ -157,3 +157,30 @@ PayloadApplicationEvent为什么不是一个良好的扩展？
 [MySpringEvent.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEvent.java)
 [MySpringEventListener.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEventListener.java)
 [MySpringEventDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/MySpringEventDemo.java)
+
+## 依赖注入ApplicationEventPlublisher
+
+通过依赖注入ApplicationEventPlublisher的方式通常有两种方式：
+
+* 通过ApplicationEventPlublisherAware回调接口
+* 通过@Autowired ApplicationEventPlublisher
+
+除之之外，因为ApplicationContext实现了ApplicationEventPlublisher接口，也可以通过注入ApplicationContext，获取ApplicationContext的实例实现事件的发布。
+
+注入ApplicationEventPublisher示例：[InjectingApplicationEventPublisherDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/InjectingApplicationEventPublisherDemo.java)
+
+## 依赖查找ApplicationEventMulticaster
+
+ApplicationEventMulticaster支持的依赖查找的条件：
+
+* 通过Bean名称查找：applicationEventMulticaster
+* 通过Bean类型查找：org.springframework.context.event.ApplicationEventMulticaster
+
+ApplicationEventMulticaster相比于ApplicationEventPlublisher是订阅模式，关注于一对多的关系，支持观察者的维护操作，比如注册观察者、删除观察者。
+
+ApplicationEventMulticaster的初始化过程：
+
+在调用AbstractApplicationContext#refresh方法时，会调用
+AbstractApplicationContext#initApplicationEventMulticaster进行ApplicationEventMulticaster的初始化。
+
+> 在Bean的destroy方法触发时依赖ApplicationEventMulticaster实现的。
