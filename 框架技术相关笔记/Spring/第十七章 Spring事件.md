@@ -185,3 +185,55 @@ AbstractApplicationContext#initApplicationEventMulticaster进行ApplicationEvent
 
 > 在Bean的destroy方法触发时依赖ApplicationEventMulticaster实现的。
 > ApplicationEventMulticaster并不是不支持依赖注入，它是通过`SingletonBeanRegistry#registerSingleton`方法进行注入的，所以没有BeanDefinition信息，当依赖注入ApplicationEventMulticaster时，但是ApplicationEventMulticaster还没有实例化，就会提示错误。所以在initApplicationEventMulticaster方法之后可以依赖注入ApplicationEventMulticaster。
+
+## ApplicationEventPublisher底层实现
+
+ApplicationEventPublisher的底层实现依赖ApplicationEventMulticaster。
+
+ApplicationEventMulticaster的抽象类AbstractApplicationEventMulticaster，对应的实现类只有一个SimpleApplicationEventMulticaster。
+
+在Spring框架中，接口ApplicationContext继承了ApplicationEventPublisher，ApplicationContext的实现为AbstractApplicationContext，AbstractApplicationContext对ApplicationEventPublisher接口的实现，参考方法`AbstractApplicationContext#publishEvent(Object, ResolvableType)`，从方法中可以看出它是通过内部依赖的属性ApplicationEventMulticaster实现发送事件的能力。这个ApplicationEventMulticaster实际上是SimpleApplicationEventMulticaster的实例。
+
+```java
+protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+    Assert.notNull(event, "Event must not be null");
+
+    // Decorate event as an ApplicationEvent if necessary
+    ApplicationEvent applicationEvent;
+    if (event instanceof ApplicationEvent) {
+         applicationEvent = (ApplicationEvent) event;
+    }
+    else {
+         applicationEvent = new PayloadApplicationEvent<>(this, event);
+         if (eventType == null) {
+              eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
+         }
+    }
+
+    // Multicast right now if possible - or lazily once the multicaster is initialized
+    if (this.earlyApplicationEvents != null) {
+         this.earlyApplicationEvents.add(applicationEvent);
+    }
+    else {
+         getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
+    }
+
+    // Publish event via parent context as well...
+    if (this.parent != null) {
+         if (this.parent instanceof AbstractApplicationContext) {
+              ((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
+         }
+         else {
+              this.parent.publishEvent(event);
+         }
+    }
+}
+```
+
+总结：**AbstractApplicationContext使用桥接的方式，将ApplicationEventPublisher的接口实现交由ApplicationEventMulticaster完成。**
+
+**在`AbstractApplicationContext#publishEvent(Object, ResolvableType)`中earlyApplicationEvents属性的作用**
+
+由于AbstractApplicationContext的事件发送依赖ApplicationEventMulticaster，而初始化ApplicationEventMulticaster在方法`AbstractApplicationContext#initApplicationEventMulticaster`，可能出现在初始化ApplicationEventMulticaster之前就进行了发送事件操作，所以将之前的发送事件保存到earlyApplicationEvents，在方法`AbstractApplicationContext#registerListeners`中对earlyApplicationEvents中的事件进行发送，并且将earlyApplicationEvents设置为null，在发送事件时，如果earlyApplicationEvents为null就不会保存事件，而是使用ApplicationEventMulticaster进行事件发送。
+
+> AbstractApplicationContext中的earlyApplicationListeners属性的作用和earlyApplicationEvents类似，保存ApplicationEventMulticaster初始化之前注册的ApplicationEvent，并在ApplicationEventMulticaster初始化后注册到ApplicationEventMulticaster中。
