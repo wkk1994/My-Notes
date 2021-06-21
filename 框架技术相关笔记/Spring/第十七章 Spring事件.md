@@ -237,3 +237,27 @@ protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
 由于AbstractApplicationContext的事件发送依赖ApplicationEventMulticaster，而初始化ApplicationEventMulticaster在方法`AbstractApplicationContext#initApplicationEventMulticaster`，可能出现在初始化ApplicationEventMulticaster之前就进行了发送事件操作，所以将之前的发送事件保存到earlyApplicationEvents，在方法`AbstractApplicationContext#registerListeners`中对earlyApplicationEvents中的事件进行发送，并且将earlyApplicationEvents设置为null，在发送事件时，如果earlyApplicationEvents为null就不会保存事件，而是使用ApplicationEventMulticaster进行事件发送。
 
 > AbstractApplicationContext中的earlyApplicationListeners属性的作用和earlyApplicationEvents类似，保存ApplicationEventMulticaster初始化之前注册的ApplicationEvent，并在ApplicationEventMulticaster初始化后注册到ApplicationEventMulticaster中。
+
+## 同步和异步Spring事件广播
+
+Spring事件监听器同步异步的方式：
+
+**基于实现类SimpleApplicationEventMulticaster：**
+
+SimpleApplicationEventMulticaster基于内部属性taskExecutor，如果不为空就使用taskExecutor异步执行事件。
+
+设计缺陷：
+
+* 基于接口契约编程，在接口ApplicationEventMulticaster没有规定同步异步执行的规则定义，异步事件执行属于SimpleApplicationEventMulticaster自己实现的。
+* SimpleApplicationEventMulticaster设置Executor要使用硬编码的方式，必须从BeanFactory获取到ApplicationEventMulticaster实例，再转换为SimpleApplicationEventMulticaster，调用setTaskExecutor方法进行Executor的设置。
+* 异步模式的设置是全局设置：SimpleApplicationEventMulticaster的同步异步不能基于事件或事件监听器的配置，只能是全局事件都是同步或异步。
+
+基于接口API实现异步事件处理示例：[AsyncEventHandlerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/AsyncEventHandlerDemo.java)
+
+**基于注解实现@EventListener和@Async：**
+
+默认条件下是同步，在事件监听方法上添加@Async实现异步。
+
+实现限制：无法实现同步/异步动态切换。
+
+基于注解实现异步事件处理示例：[AnnotationAsyncEventHandlerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/AnnotationAsyncEventHandlerDemo.java)
