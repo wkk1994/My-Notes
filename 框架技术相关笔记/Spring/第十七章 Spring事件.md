@@ -261,3 +261,76 @@ SimpleApplicationEventMulticaster基于内部属性taskExecutor，如果不为�
 实现限制：无法实现同步/异步动态切换。
 
 基于注解实现异步事件处理示例：[AnnotationAsyncEventHandlerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/AnnotationAsyncEventHandlerDemo.java)
+
+## Spring4.1事件异常处理
+
+Spring3.0错误处理接口：org.springframework.util.ErrorHandler
+
+使用场景：
+
+* Spring事件（Event）：SimpleApplicationEventMulticaster在事件处理中如果出现异常，可以选择使用ErrorHandler，进行异常处理。
+* Spring本地调度（Scheduling）：
+  * org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
+  * org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
+
+事件异常处理示例：[AsyncEventHandlerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/event/src/main/java/com/wkk/learn/spring/ioc/event/AsyncEventHandlerDemo.java)
+
+## Spring事件/监听器实现原理
+
+核心类：SimpleApplicationEventMulticaster
+
+SimpleApplicationEventMulticaster的设计模式是观察者模式的扩展：
+
+* 观察者：ApplicationListener的实现类，注册方式有两种：
+  * API添加：可以通过方法AbstractApplicationContext#addApplicationListener进行添加。
+  * 依赖查找主动注册：在方法`AbstractApplicationContext#registerListeners`中查找类型为ApplicationListener的实现类进行注册。
+* 被观察者：ApplicationEvent的实现类。
+
+执行模式：同步/异步
+异常处理：ErrorHandler
+泛型处理：ResolvableType
+
+SimpleApplicationEventMulticaster的实现原理参考方法`AbstractApplicationEventMulticaster#getApplicationListeners(org.springframework.context.ApplicationEvent, org.springframework.core.ResolvableType)`：
+
+在进行事件发布时，需要找到对应事件的监听器。AbstractApplicationEventMulticaster通过属性retrieverCache（类型为ConcurrentHashMap）缓存事件和监听器的对应关系，在有监听器加入或者删除时，都会对retrieverCache进行清除。
+
+retrieverCache的key为ListenerCacheKey，value为ListenerRetriever。ListenerCacheKey中存有事件的类型，以及事件的来源。ListenerRetriever保存事件监听器的列表。
+
+事件发布的过程参考方法`SimpleApplicationEventMulticaster#multicastEvent(org.springframework.context.ApplicationEvent, org.springframework.core.ResolvableType)`：
+
+* 通过事件类型和事件的源类型，构造出ListenerCacheKey示例。
+* 在retrieverCache中查询是否有对应的ListenerRetriever，有的话直接返回事件监听器列表，对事件监听器逐个进行调用。
+* 如果缓存中不存在，在同步代码块中获取监听器列表，并保存到retrieverCache缓存中。监听器列表获取方式参考代码：`AbstractApplicationEventMulticaster#retrieveApplicationListeners`
+  * 监听器的获取过程就是检查applicationListeners和applicationListenerBeans中的示例是否支持当前的事件类型。
+
+> 事件监听的层次性概念：事件可以有父子类，监听事件父类的的监听器也会监听事件子类的发生。
+
+## SpringBoot、SpringCloud事件
+
+SpringBoot事件：
+
+![SpringBoot事件](https://i.loli.net/2021/06/22/DI3qW56YkXce2rg.png)
+
+SpringCloud事件：
+
+![SpringCloud事件](https://i.loli.net/2021/06/22/kQvd8JWrMqSA27m.png)
+
+SpringBoot和SpringCloud事件都是使用ApplicationEventPublisher进行事件传输的。使用Aware机制获取ApplicationEventPublisher。
+
+## 面试题
+
+* Spring事件核心接口/组件？
+
+  * Spring事件：ApplicationEvent
+  * Spring事件监听器：ApplicationListener
+  * Spring事件发布器：ApplicationEventPublisher
+  * Spring事件广播器：ApplicationEvnetMulticaster
+
+* Spring同步/异步事件处理的使用场景？
+
+  * Spring同步事件：绝大多数Spring使用场景，如ContextRefreshedEvent，适合短时间运行的任务处理。
+  * Spring异步事件：主要@EventListener和@Asyc配合使用，实现异步处理，不阻塞主线程，适合长时间运行的数据计算任务等。不要轻易调整SimpleApplicationEventMuliticaster中关联的taskExecutor对象，除非使用者非常了解Spring的事件机制，否则容易出现异常行为。
+
+* @EventListener的工作原理？
+
+  下章解答。
