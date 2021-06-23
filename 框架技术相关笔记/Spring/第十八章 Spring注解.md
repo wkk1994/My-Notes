@@ -171,3 +171,20 @@ Spring组合注解是使用一个或多个注解进行注释的注解，目的�
   ```
 
 * 传递性显示覆盖：如果注解@One中的属性A是注解@Two中属性B的显式覆盖，而B是注解@Three中属性C的显式覆盖，那么A是遵循传递性法则的C的传递性显式覆盖。
+
+## Spring @Enable模块驱动
+
+Spring提供了@Enable模块驱动编程模式：
+
+驱动注解都是使用@Enable作为开头，导入注解使用@Import实现。@Import导入的具体实现有：
+
+* 基于Configuration Class
+* 基于ImportSelector接口实现
+* 基于ImportBeanDefinitionRegistrar接口实现
+
+@Enable模块驱动示例代码：
+[HelloWorldConfiguration.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/HelloWorldConfiguration.java)
+[HelloWorldImportSelector.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/HelloWorldImportSelector.java)
+[HelloWorldImportBeanDefinitionRegistrar.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/HelloWorldImportBeanDefinitionRegistrar.java)
+[EnableHelloWorld.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/EnableHelloWorld.java)
+[EnableModuleDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/EnableModuleDemo.java)
