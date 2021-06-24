@@ -188,3 +188,28 @@ Spring提供了@Enable模块驱动编程模式：
 [HelloWorldImportBeanDefinitionRegistrar.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/HelloWorldImportBeanDefinitionRegistrar.java)
 [EnableHelloWorld.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/EnableHelloWorld.java)
 [EnableModuleDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/EnableModuleDemo.java)
+
+## Spring条件注解
+
+Spring条件注解的方式有：
+
+* 基于配置的条件注解：@org.springframework.context.annotation.Profile
+  * 关联对象：org.springframework.core.env.Environment中的Profiles
+  * 实现变化：从Spring4.0开始，@Porfile基于@Conditional实现
+
+* 基于编程条件注解：@org.springframework.context.annotation.Conditional
+  * 关联对象：org.springframework.context.annotation.Condition的具体实现
+
+Spring条件注解代码示例：
+[EvenProfileCondition.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/EvenProfileCondition.java)
+[ProfileDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/annotation/src/main/java/com/wkk/learn/spring/ioc/annotation/ProfileDemo.java)
+
+@Conditional实现原理：
+
+* 上下文对象：org.springframework.context.annotation.ConditionContext，存储当前Spring上下文的BeanFactory、Environment等信息。
+* 条件判断：org.springframework.context.annotation.ConditionEvaluator
+
+  条件判断实现方法为ConditionEvaluator#shouldSkip(AnnotatedTypeMetadata, ConfigurationPhase)，在该方法中先获取Bean上的Condition的实现类列表，然后遍历执行Condition，有一个条件匹配就返回为true。
+
+* 判断入口：org.springframework.context.annotation.ConfigurationClassPostProcessor
+  * org.springframework.context.annotation.ConfigurationClassParser
