@@ -209,7 +209,21 @@ Spring条件注解代码示例：
 * 上下文对象：org.springframework.context.annotation.ConditionContext，存储当前Spring上下文的BeanFactory、Environment等信息。
 * 条件判断：org.springframework.context.annotation.ConditionEvaluator
 
-  条件判断实现方法为ConditionEvaluator#shouldSkip(AnnotatedTypeMetadata, ConfigurationPhase)，在该方法中先获取Bean上的Condition的实现类列表，然后遍历执行Condition，有一个条件匹配就返回为true。
+  条件判断实现方法为ConditionEvaluator#shouldSkip(AnnotatedTypeMetadata, ConfigurationPhase)，在该方法中先获取Bean上的Condition的实现类列表，然后遍历执行Condition，有一个条件不匹配就返回为true。
 
 * 判断入口：org.springframework.context.annotation.ConfigurationClassPostProcessor
   * org.springframework.context.annotation.ConfigurationClassParser
+
+## 面试题
+
+* Spring模式注解有哪些？
+
+  @Component、@Repository、@Service、@Controller
+
+* @EventListener工作原理
+
+  源码参考：org.springframework.context.event.EventListenerMethodProcessor
+
+* @PropertySource工作原理
+
+  下章解答。
