@@ -87,3 +87,16 @@ ApplicationContext中持有Environment的示例，因此可以通过注入Applic
 TODO
 
 @Value注解示例：[ValueAnnotationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/ValueAnnotationDemo.java)
+
+## String类型转换在Environment中的运用
+
+Environment的底层实现：
+
+参考AbstractEnvironment。
+
+Environment的能力依赖于org.springframework.core.env.PropertySourcesPropertyResolver，相当于装饰器模式，将PropertySourcesPropertyResolver作为内部属性依赖，对外的能力委托给PropertySourcesPropertyResolver处理。
+
+参考源码PropertySourcesPropertyResolver#getProperty(jString, Class, boolean)
+MutablePropertySources是PropertySource的迭代器，保存了所有的PropertySource，PropertySourcesPropertyResolver通过MutablePropertySources获取PropertySource的迭代器，然后迭代获取参数值。
+
+PropertySourcesPropertyResolver的类型转换方法为convertValueIfNecessary，它也是使用org.springframework.core.convert.ConversionService实现类型转换的，如果ConversionService的实现为空，则使用DefaultConversionService。
