@@ -21,3 +21,36 @@ Spring3.1开始引入的Environment抽象，它主要有两个作用：统一的
 * 用户存储Spring属性配置源（PropertySource）：方法getActiveProfiles和getDefaultProfiles可以获取Profiles。
 
 * 用于Profiles状态的维护：Profiles状态的维护由Environment的实现AbstractEnvironment实现，AbstractEnvironment的方法setActiveProfiles和setDefaultProfiles可以对Profiles进行维护。
+
+## Environment占位符处理
+
+在Spring3.1之前占位符的处理：
+
+* 组件：org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
+* 接口：org.springframework.util.StringValueResolver
+
+在Spring3.1之后占位符处理：
+
+* 组件：org.springframework.context.support.PropertySourcesPlaceholderConfigurer
+* 接口：org.springframework.util.StringValueResolver
+
+PropertyPlaceholderConfigurer和PropertySourcesPlaceholderConfigurer都继承了PlaceholderConfigurerSupport抽象类。
+
+Spring条件注解代码示例：
+[PropertyPlaceholderConfigurerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/PropertyPlaceholderConfigurerDemo.java)
+
+## 理解条件配置Spring Profiles
+
+核心接口：org.springframework.core.env.ConfigurableEnvironment
+
+* 修改：addActiveProfile、setActiveProfiles、setDefaultProfiles
+* 获取：getActiveProfiles、getDefaultProfiles
+* 匹配：acceptsProfiles、acceptsProfiles
+
+注解：@Profile
+
+> 外部化配置：不在程序内部产生的配置都是外部化配置，这部分的外部化配置可能是来自运行时传入的参数、外部化文件。
+
+## Spring4重构@Profile实现
+
+Spring4以后对@Porfile的实现为：通过在@Profile注解上进行元标注@Conditional，指定它的Condition实现为ProfileCondition，在通过ProfileCondition实现对@Profile条件的判断。
