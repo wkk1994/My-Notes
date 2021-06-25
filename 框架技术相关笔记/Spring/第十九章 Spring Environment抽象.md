@@ -36,7 +36,7 @@ Spring3.1开始引入的Environment抽象，它主要有两个作用：统一的
 
 PropertyPlaceholderConfigurer和PropertySourcesPlaceholderConfigurer都继承了PlaceholderConfigurerSupport抽象类。
 
-Spring条件注解代码示例：
+PropertyPlaceholderConfigurer占位符处理示例：
 [PropertyPlaceholderConfigurerDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/PropertyPlaceholderConfigurerDemo.java)
 
 ## 理解条件配置Spring Profiles
@@ -54,3 +54,36 @@ Spring条件注解代码示例：
 ## Spring4重构@Profile实现
 
 Spring4以后对@Porfile的实现为：通过在@Profile注解上进行元标注@Conditional，指定它的Condition实现为ProfileCondition，在通过ProfileCondition实现对@Profile条件的判断。
+
+## 依赖注入Environment
+
+直接依赖注入：
+
+* 通过EnvironmentAware接口回调注入Environment实例
+* 通过@Autowired注入Environment
+
+ApplicationContext中持有Environment的示例，因此可以通过注入ApplicationContext间接依赖注入：
+
+* 通过ApplicationContextAware接口回调
+* 通过@Autowired注入ApplicationContext
+
+依赖注入Environment示例：
+[InjectionEnvironmentDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/InjectionEnvironmentDemo.java)
+
+## 依赖查找Environment
+
+* 直接依赖查找：通过org.springframework.context.ConfigurableApplicationContext#ENVIRONMENT_BEAN_NAME作为Bean Name进行查找。
+* 间接依赖查找：通过ApplicationContext示例的getEnvironment方法间接获取Environment实例。
+
+依赖查找Environment示例：
+[LookupEnvironmentDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/LookupEnvironmentDemo.java)
+
+## 依赖注入@Value
+
+通过注入@Value的实现类：AutowiredAnnotationBeanPostProcessor#postProcessProperties。
+
+**@Value的实现细节：**
+
+TODO
+
+@Value注解示例：[ValueAnnotationDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/ValueAnnotationDemo.java)
