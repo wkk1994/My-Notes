@@ -100,3 +100,43 @@ Environment的能力依赖于org.springframework.core.env.PropertySourcesPropert
 MutablePropertySources是PropertySource的迭代器，保存了所有的PropertySource，PropertySourcesPropertyResolver通过MutablePropertySources获取PropertySource的迭代器，然后迭代获取参数值。
 
 PropertySourcesPropertyResolver的类型转换方法为convertValueIfNecessary，它也是使用org.springframework.core.convert.ConversionService实现类型转换的，如果ConversionService的实现为空，则使用DefaultConversionService。
+
+## Spring类型转换在@Value中的运用
+
+@Value底层实现：
+
+核心API：`org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor`
+- `org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency`
+
+底层服务：`org.springframework.beans.TypeConverter`
+
+* 默认实现：org.springframework.beans.TypeConverterDelegate
+  * java.beans.PropertyEditor
+  * org.springframework.core.convert.ConversionService
+
+@Value的类型转换最终也是依赖PropertyEditor或ConversionService来实现的，如果PropertyEditor不为空就使用PropertyEditor。
+
+## Spring配置属性源PropertySource
+
+API：
+
+* 单配置属性源：org.springframework.core.env.PropertySource
+
+  PropertySource包含name和source属性，name不允许重复，source代表属性的来源，可以是Map或者文件等，根据实现类不同source也不同。
+
+* 多配置属性源：org.springframework.core.env.PropertySources
+
+  它实现了迭代器模式，可以认为它会保存多个PropertySource，并且保存的PropertySource是有顺序的，在进行属性获取的时候，按照顺序对PropertySource进行属性获取，获取到之后就不会继续遍历了。
+
+注解：
+
+* 单配置属性源：org.springframework.context.annotation.PropertySource
+
+  注解用来关联资源，资源可以是文件或者其他任何语义。
+
+* 多配置属性源：org.springframework.context.annotation.PropertySources
+
+关联：
+
+* 存储对象：org.springframework.core.env.MutablePropertySources
+* 关联方法：org.springframework.core.env.ConfigurableEnvironment#getPropertySources
