@@ -167,3 +167,20 @@ TODO
 在Spring4.1开始提供了一个测试配置属性源：@TestPropertySource，它的优先级基本上是最高的，主要用来在测试时，替换默认的属性源。
 
 测试配置属性源示例：[TestPropertySourceTest.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/test/java/com/wkk/learn/spring/ioc/environment/TestPropertySourceTest.java)
+
+## 面试题
+
+* 简单介绍Spring Environment接口？
+
+  * 核心接口：org.springframework.core.env.Environment
+  * 父接口：org.springframework.core.env.PropertyResolver
+  * 可配置接口：org.springframework.core.env.ConfigurableEnvironment
+  * 职责：管理Spring配置属性源、管理Profiles
+
+* 如何控制PropertySource的优先级？
+
+  MutablePropertySources中保存的PropertySource是一个有序的数组list，可以通过MutablePropertySources的addFirst、addLast、addBefore、addAfter方法来控制插入PropertySource的优先级。
+
+* Environment完整的生命周期是怎样的？
+
+  下章解答。
