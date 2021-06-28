@@ -140,3 +140,30 @@ API：
 
 * 存储对象：org.springframework.core.env.MutablePropertySources
 * 关联方法：org.springframework.core.env.ConfigurableEnvironment#getPropertySources
+
+## Spring内建的配置属性源
+
+* 命令行配置属性源：org.springframework.core.env.CommandLinePropertySource
+* JDNI配置属性源：org.springframework.jndi.JndiPropertySource
+* Properties配置属性源：org.springframework.core.env.PropertiesPropertySource
+* Servlet配置属性源：org.springframework.web.context.support.ServletConfigPropertySource
+* ServletContext配置属性源：org.springframework.web.context.support.ServletContextPropertySource
+* 环境变量配置属性源：org.springframework.core.env.SystemEnvironmentPropertySource
+
+## 基于注解扩展Spring配置属性源
+
+@PropertySource实现原理：
+
+TODO
+
+## 基于API扩展Spring配置属性源
+
+基于API进行扩展Spring配置属性源，分为启动前和启动后两个时机，如果在启动前阶段进行属性更新，依赖这个属性的值会被注入。但是在启动后进行更新，已经创建的bean实例的属性值不会更新了。
+
+基于API扩展Spring配置属性源示例：[EnvironmentPropertySourceChangeDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/main/java/com/wkk/learn/spring/ioc/environment/EnvironmentPropertySourceChangeDemo.java)
+
+## Spring 4.1测试配置属性源
+
+在Spring4.1开始提供了一个测试配置属性源：@TestPropertySource，它的优先级基本上是最高的，主要用来在测试时，替换默认的属性源。
+
+测试配置属性源示例：[TestPropertySourceTest.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/environment/src/test/java/com/wkk/learn/spring/ioc/environment/TestPropertySourceTest.java)
