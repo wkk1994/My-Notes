@@ -1,0 +1,26 @@
+# Spring应用上下文生命周期
+
+主要讲解Spring上下文的启动的流程，主要围绕方法`org.springframework.context.support.AbstractApplicationContext#refresh`讲解。
+
+## Spring应用上下文启动准备阶段
+
+准备阶段方法：`AbstractApplicationContext#prepareRefresh`
+
+* 1.记录启动时间：startupDate
+* 2.标识状态：close(true)、active(true)
+* 3.初始化PropertySource：initPropertySources()
+
+  AbstractApplicationContext#initPropertySources默认是空方法，AbstractApplicationContext的子类，自定义对PropertySource进行了初始化。
+  比如：`GenericWebApplicationContext#initPropertySources`，会初始化servletContext相关的PropertySource。
+
+* 4.校验Environment中必须属性：ConfigurablePropertyResolver#validateRequiredProperties
+
+  这里校验的必要属性就是在ConfigurablePropertyResolver#setRequiredProperties方法重中设置的属性。
+
+* 5.初始化早期事件监听器集合：earlyApplicationListeners
+
+  earlyApplicationListeners用来保存ApplicationEventMulticaster初始化之前注册的ApplicationEvent，并在ApplicationEventMulticaster初始化后注册到ApplicationEventMulticaster中。
+
+* 6.初始化早期事件集合：earlyApplicationEvents
+
+  因为AbstractApplicationContext的发送事件委托给ApplicationEventMulticaster实现，所以在ApplicationEventMulticaster初始化之前，earlyApplicationEvents用来保存暂存要发送的事件，当ApplicationEventMulticaster初始化之后再发送事件。
