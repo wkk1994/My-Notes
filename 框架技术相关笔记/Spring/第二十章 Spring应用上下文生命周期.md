@@ -24,3 +24,81 @@
 * 6.初始化早期事件集合：earlyApplicationEvents
 
   因为AbstractApplicationContext的发送事件委托给ApplicationEventMulticaster实现，所以在ApplicationEventMulticaster初始化之前，earlyApplicationEvents用来保存暂存要发送的事件，当ApplicationEventMulticaster初始化之后再发送事件。
+
+## BeanFactory创建阶段
+
+BeanFactory创建阶段的方法：`AbstractApplicationContext#obtainFreshBeanFactory`
+
+这个方法的作用是刷新Spring上下文底层的BeanFactory并返回BeanFactory，刷新BeanFactory的方法为`AbstractApplicationContext#refreshBeanFactory`，目前在Spring中的有两个该方法的实现分别是`AbstractRefreshableApplicationContext#refreshBeanFactory`和`GenericApplicationContext#refreshBeanFactory`。Spring中与Web相关的上下文都继承了AbstractRefreshableApplicationContext，而其他的Spring上下文都继承了GenericApplicationContext。
+
+`AbstractRefreshableApplicationContext#refreshBeanFactory`的实现：
+
+* 如果已经存在BeanFactory，销毁BeanFactory中的Bean，并关闭BeanFactory。
+* 创建BeanFactory：createBeanFactory，创建的BeanFactory类型为DefaultListableBeanFactory，并且在Spring中创建的应用上下文中的BeanFactory都是DefaultListableBeanFactory。
+* 设置BeanFactory的id，这个id可以有语义或没有语义。
+* 定制BeanFactory的属性：`AbstractRefreshableApplicationContext#customizeBeanFactory`
+
+  当前这个方法中只改变了BeanFactory的两个值：
+  
+  * allowBeanDefinitionOverriding：是否允许BeanDefinition重复定义，默认值为true。spring-boot 2.1开始设置为false了，不允许重复定义BeanDefinition。
+  * allowCircularReferences：是否允许循环依赖，默认值为true。
+
+* 加载BeanDefinition：`AbstractRefreshableApplicationContext#loadBeanDefinitions`，不同的子类实现的行为不一样，比如ClassPathXmlApplicationContext实现的方式是从xml中读取BeanDefinition；AnnotationConfigWebApplicationContext实现的方式是从注解中获取。
+* 关联新建的BeanFactory到当前Spring上下文中：`this.beanFactory = beanFactory`
+
+`GenericApplicationContext#refreshBeanFactory`中的实现：
+
+它的实现比较简单，就是设置refreshed为true，并设置BeanDefinition的id。
+
+> spring-boot 2.1开始不允许重复定义BeanDefinition，这样的改动实际上是不合理的，一般子类的实现时它的限制不应该小于父类。
+> **关联新建的BeanFactory到当前Spring上下文这一步**，在历史版本中都是使用synchronized进行了同步限制，新版本开始取消了synchronized同步限制，并且在getBeanFactory方法中也取消了synchronized同步限制。
+
+## BeanFactory准备阶段
+
+BeanFactory在使用前有一个准备阶段，方法`AbstractApplicationContext#prepareBeanFactory`，在这一阶段主要是注册了两个BeanPostProcessor：ApplicationContextAwareProcessor和ApplicationListenerDetector；注册了4个可依赖注入的Bean，分别是BeanFactory、ResourceLoader、ApplicationEventPublisher和ApplicationContext；注册了三个单例的Environment Bean，分别是Environment、SystemProperties、SystemEnvironment。
+
+具体实现：
+
+* 关联ClassLoader
+
+  这里需要ClassLoader的原因是，在进行Bean实例化时需要通过ClassLoader进行Class字节码的加载，虽然对Class字节码的加载，BeanFactory可以使用加载自身的ClassLoader，不用特地关联，但是，由于ClassLoader有隔离机制，所以这里关联的ClassLoader可以是一些自定义的ClassLoader，用来实现比如隔离等特定的目的。
+
+* 设置Bean表达式处理：这里是设置EL表达式的解析方式。
+* 添加PropertyEditorRegister实现：AbstractBeanFactory可以添加多个PropertyEditorRegister，用来实现类型转换。
+* 添加Aware回调接口的实现ApplicationContextAwareProcessor
+
+  ApplicationContextAwareProcessor的作用是在Bean初始化完成之后，对Bean检查是否是某些Aware接口的实现，并注入特定的Bean实例，这些接口有：EnvironmentAware、EmbeddedValueResolverAware、ResourceLoaderAware、ApplicationEventPublisherAware、MessageSourceAware、ApplicationContextAware。
+
+* 忽略Aware回调接口作为依赖注入接口
+
+  ```java
+  beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+  beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
+  beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+  beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+  beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+  beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+  ```
+
+  这里的作用是上述Aware接口的实现类如果使用自动绑定的形式注入属性，那么它在自动绑定对应的属性时会被忽略，即不绑定。举例：
+  
+  ```java
+  public class CustomizeApplicationContextAware implements ApplicationContextAware {
+  private ApplicationContext applicationContext;
+  private User user;
+  // setter gatter
+  ```
+  
+  在自动绑定阶段，上面的属性user会正常注入，但是applicationContext会被忽略。
+  为什么？因为实现Aware接口的Bean实例会在ApplicationContextAwareProcessor类中，调用对应的set方法注入对应的Bean实例，所以前面可以忽略，避免多次注入。
+
+* 注册可依赖注入的对象（ResolvableDependency）：BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext。
+
+* 注册ApplicationListenerDetector对象
+
+  ApplicationListenerDetector实现了BeanPostProcessor两个阶段，分别是Bean初始化完成之后和Bean销毁之前。在Bean初始化完成之后，如果Bean是单例并且类型为ApplicationListener，通过方法`AbstractApplicationContext#addApplicationListener`注册为事件监听器。
+  Bean销毁之前，如果Bean类型是ApplicationListener，将bean从事件监听中除移。
+
+* 注册LoadTimeWeaverAwareProcessor：与AOP相关。
+
+* 注册单例对象：Environment、Java System Properties以及OS环境变量。
