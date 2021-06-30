@@ -19,7 +19,8 @@
 
 * 5.初始化早期事件监听器集合：earlyApplicationListeners
 
-  earlyApplicationListeners用来保存ApplicationEventMulticaster初始化之前注册的ApplicationEvent，并在ApplicationEventMulticaster初始化后注册到ApplicationEventMulticaster中。
+  ~~earlyApplicationListeners用来保存ApplicationEventMulticaster初始化之前注册的ApplicationEvent，并在ApplicationEventMulticaster初始化后注册到ApplicationEventMulticaster中。~~
+  earlyApplicationListeners并不是这样的，applicationListeners才是存放ApplicationEventMulticaster初始化之前注册的ApplicationEvent，目前earlyApplicationListeners的尚不知晓。
 
 * 6.初始化早期事件集合：earlyApplicationEvents
 
@@ -195,3 +196,45 @@ AbstractApplicationContext的`postProcessBeanFactory`方法为空方法，由子
 方法：`AbstractApplicationContext#initApplicationEventMulticaster`，这一步主要初始化Spring上下文所依赖的事件注册和广播器ApplicationEventMulticaster。
 
 先检查当前BeanFactory本地是存在applicationEventMulticaster，存在就直接获取，不存在就创建一个SimpleApplicationEventMulticaster作为默认实现，并且作为单例Bean注册到BeanFactory中。
+
+## Spring上下文刷新阶段
+
+方法`AbstractApplicationContext#onRefresh`默认为空实现，子类覆盖的方法：
+
+* org.springframework.web.context.support.AbstractRefreshableWebApplicationContext#onRefresh
+
+  对主题进行设置，themeSource。
+
+* org.springframework.web.context.support.GenericWebApplicationContext#onRefresh
+
+  对主题进行设置，themeSource。
+
+* org.springframework.boot.web.reactive.context.ReactiveWebServerApplicationContext#onRefresh
+
+  和上面的不同，会创建一些web相关的东西。
+
+* org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext#onRefresh
+
+  和上面的不同，会创建一些web相关的东西。
+
+* org.springframework.web.context.support.StaticWebApplicationContext#onRefresh
+
+  对主题进行设置，themeSource。
+
+在onRefresh中，子类可以做的扩展是基于之前已经初始化好的属性进行扩展，比如MessageSource，ApplicationEventMulticaster。
+
+## Spring事件监听器注册阶段
+
+方法`AbstractApplicationContext#registerListeners`主要步骤为：
+
+* 添加当前Spring应用上下文关联的ApplicationListener对象集合。
+
+  这里添加的ApplicationListener来源applicationListeners属性，applicationListeners存的是在ApplicationEventMulticaster未初始化前，通过`AbstractApplicationContext#addApplicationListener`注册的事件监听器。
+
+* 添加BeanFactory中所注册的ApplicationListener。
+
+  从BeanFactory中获取类型为ApplicationListener的BeanName，并注册到ApplicationEventMulticaster。注意这里注册的是BeanName，相当于延迟加载的形式，在需要的时候再初始化对应的Bean实例。
+
+* 广播ApplicationEventMulticaster未初始化前的Spring事件。
+
+  从earlyApplicationEvents中获取早期的Spring事件，并通过ApplicationEventMulticaster进行广播。
