@@ -102,3 +102,53 @@ BeanFactory在使用前有一个准备阶段，方法`AbstractApplicationContext
 * 注册LoadTimeWeaverAwareProcessor：与AOP相关。
 
 * 注册单例对象：Environment、Java System Properties以及OS环境变量。
+
+## BeanFactory后置处理阶段
+
+BeanFactory的后置处理阶段对应有两个方法：`AbstractApplicationContext#postProcessBeanFactory`和`AbstractApplicationContext#invokeBeanFactoryPostProcessors`。
+
+`postProcessBeanFactory`方法：
+
+AbstractApplicationContext的`postProcessBeanFactory`方法为空方法，由子类实现。
+
+`AnnotationConfigServletWebApplicationContext#postProcessBeanFactory`方法分析：
+
+* 首先调用了父类的postProcessBeanFactory方法，即`GenericWebApplicationContext#postProcessBeanFactory`。
+* 如果basePackages不为空，使用ClassPathBeanDefinitionScanner扫描Bean并注册。
+* 如果annotatedClasses不为空，注册annotatedClasses指定的Class。
+
+`GenericWebApplicationContext#postProcessBeanFactory`方法分析：
+
+* servletContext不为空，注册Aware回调接口ServletContextAwareProcessor，并忽略ServletContextAware。
+* 注册Web容器的Bean作用域（request、session、application）
+* 注册Web容器相关的Environment Bean，有servletContext、servletConfig、contextParameters、contextAttributes。
+
+`invokeBeanFactoryPostProcessors`方法：
+
+该方法主要有两个步骤：
+
+* 调用BeanFactoryPostProcessor或BeanDefinitionRegistryPostProcessor的后置处理方法。
+* 注册LoadTimeWeaverAwareProcessor对象。
+
+`PostProcessorRegistrationDelegate#invokeBeanFactoryPostProcessors(org.springframework.beans.factory.config.ConfigurableListableBeanFactory, java.util.List<org.springframework.beans.factory.config.BeanFactoryPostProcessor>)`方法用来执行BeanFactoryPostProcessor或BeanDefinitionRegistryPostProcessor的实现类的后置处理方法，主要步骤：
+
+* 1.执行BeanDefinitionRegistryPostProcessor的后置处理方法
+
+  这里的前提是当前的BeanFactory是BeanDefinitionRegistry的子类，DefaultListableBeanFactory实现了BeanDefinitionRegistry所以条件成立。
+  接口BeanDefinitionRegistryPostProcessors继承了BeanFactoryPostProcessor接口，所以在这一步骤会执行两个方法`postProcessBeanDefinitionRegistry`和`postProcessBeanFactory`。
+  这里的执行顺序可以看成是四个步骤：
+  * 1.执行传入的BeanFactoryPostProcessor列表中类型为BeanDefinitionRegistryPostProcessor的`postProcessBeanDefinitionRegistry`方法。
+  * 2.从BeanFactory中获取类型为BeanDefinitionRegistryPostProcessor的Bean实例，将这些Bean实例中实现了PriorityOrdered接口的进行排序，然后执行`postProcessBeanDefinitionRegistry`方法。
+  * 3.从BeanFactory中获取类型为BeanDefinitionRegistryPostProcessor的Bean实例，将这些Bean实例中实现了Ordered接口的进行排序，然后执行`postProcessBeanDefinitionRegistry`方法。
+  * 4.从BeanFactory中获取类型为BeanDefinitionRegistryPostProcessor的Bean实例，将上面已经执行的过滤，然后执行`postProcessBeanDefinitionRegistry`方法。
+    这里会一直循环执行，直到不存在没执行的BeanDefinitionRegistryPostProcessor为止。为什么？因为在`postProcessBeanDefinitionRegistry`方法也可以注册BeanDefinitionRegistryPostProcessor。
+  * 5.执行BeanDefinitionRegistryPostProcessor中的`postProcessBeanFactory`方法
+
+* 2.如果BeanFactory不是BeanDefinitionRegistry的子类，执行传入的BeanFactoryPostProcessor列表的`postProcessBeanFactory`方法。
+* 3.开始执行BeanFactoryPostProcessor的`postProcessBeanFactory`方法。
+
+  这里执行的BeanFactoryPostProcessor和上面类似，先将实现PriorityOrdered接口的Bean实例排序并执行`postProcessBeanFactory`方法，然后再是实现了Ordered接口的，最后是剩下的。不过这里执行的BeanFactoryPostProcessor实例，需要排除上面的BeanDefinitionRegistryPostProcessor的实例，而且最后执行的也没有循环执行。
+
+* 4.清除BeanFactory中的BeanDefinition等缓存数据。
+
+> 对于BeanFactory后置处理阶段，如果开发者想要扩展，通过实现BeanFactoryPostProcessor或BeanDefinitionRegistryPostProcessor接口即可。
