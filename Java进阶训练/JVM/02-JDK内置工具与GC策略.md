@@ -702,7 +702,7 @@ Hotspot虚拟机中并不是永远要求对象的年龄必须达到`-XX:MaxTenur
 
 jdk6 uptate 24之后，在发生Minor GC之前，虚拟机必须先检查老年代最大可用的连续空间是否大于年轻代对象总大小或者历次晋升的平均大小，如果大于这次Minor GC就是安全的可以进行，否则就需要进行Full GC。这种老年代需要给年轻代进行的担保称为分配担保。
 
-jdk6 uptate 24之前，可以通过参数`-XX:+HandlePromotionFailure`指定允许担保失败。
+jdk6 uptate 24之前，可以通过参数`-XX:+HandlePromotionFailure`指定允许担保失败。在JDK 6 Update 24之后，`-XX:HandlePromotionFailure`参数不会再影响到虚拟机的空间分配担保策略，观察OpenJDK中的源码变化（见代码清单3-12），虽然源码中还定义了`-XX:HandlePromotionFailure`参数，但是在实际虚拟机中已经不会再使用它。JDK 6 Update 24之 后的规则变为只要老年代的连续空间大于新生代对象总大小或者历次晋升的平均大小，就会进行 Minor GC，否则将进行Full GC。
 
 **G1 GC是否没有这个机制了？？？**
 

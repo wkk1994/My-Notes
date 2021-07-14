@@ -599,7 +599,7 @@ class MyNode extends Node {
 }
 ```
 * **问题三:**  
-    Java泛型很大程度上只能提供静态类型检查，然后类型的信息就会被擦除，所以像    下面这样利用类型参数创建实例的做法编译器不会通过：
+    Java泛型很大程度上只能提供静态类型检查，然后类型的信息就会被擦除，所以像下面这样利用类型参数创建实例的做法编译器不会通过：
     ```java
     public static <E> void append(List<E> list) {
         E elem = new E();  // compile-time error
@@ -615,6 +615,7 @@ class MyNode extends Node {
     ```
 * **问题四:**
 无法对泛型代码直接使用instanceof关键字，因为Java编译器在生成代码的时候会擦除所有相关泛型的类型信息，正如我们上面验证过的JVM在运行时期无法识别出ArrayList<Integer>和ArrayList<String>的之间的区别:
+
     ```java
     public static <E> void rtti(List<E> list) {
         if (list instanceof ArrayList<Integer>) {  //  compile-time error
@@ -622,7 +623,9 @@ class MyNode extends Node {
         }
     }
     ```
+
     可以使用通配符重新设置bounds来解决这个问题：
+
     ```java
     public static void rtti(List<?> list) {
         if (list instanceof ArrayList<?>) {  // OK;instanceof  requires a reifiable type

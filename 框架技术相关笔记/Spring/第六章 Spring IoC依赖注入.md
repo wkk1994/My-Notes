@@ -178,7 +178,7 @@ Spring提供了Aware系列接口，通过实现不同的Aware接口，可以在�
 |BeanClassLoaderAware| 获取加载当前 Bean Class 的 ClassLoader |
 |BeanNameAware| 获取当前 Bean 的名称|
 |MessageSourceAware| 获取 MessageSource 对象，用于 Spring 国际化|
-|ApplicationEventPublisherAware| 获取 ApplicationEventPublishAware 对象，用于 Spring 事件|
+|ApplicationEventPublisherAware| 获取 ApplicationEventPublisher 对象，用于 Spring 事件|
 |EmbeddedValueResolverAware| 获取 StringValueResolver 对象，用于占位符处理|
 
 代码示例：[AwareInterfaceDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/AwareInterfaceDependencyInjectionDemo.java)
