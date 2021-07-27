@@ -281,6 +281,8 @@ Spring的@Qualifier注解不仅可以根据Bean名称进行限定注入，还可
 
 ObjectProvider是ObjectFactory的子类，并在ObjectFactory上进行了扩展。
 
+代码示例：[LazyDependencyInjectionDemo.java](https://github.com/wkk1994/spring-ioc-learn/blob/master/dependency-injection/src/main/java/com/wkk/learn/spring/ioc/dependency/injection/LazyDependencyInjectionDemo.java)
+
 > 在Spring源码中，大量非必要的依赖使用ObjectProvider进行依赖注入，这样可以避免一些非必要bean注入时提示NoSuchBeanExecption的错误。
 
 ## 依赖处理过程

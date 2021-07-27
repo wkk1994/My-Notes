@@ -48,7 +48,7 @@ Java中对依赖查找的实现有：
   * Spring 3.0 获取标注类型 Bean 实例列表
     * getBeansWithAnnotation(Class<? extends Annotation>)
   * Spring 3.0 获取指定名称 + 标注类型 Bean 实例
-    * findAnnotationOnBean(String,Class<? extends Annotation>)
+    * findAnnotationOnBean(String,Class<? extends Annotation>)：实际上这个不能算是依赖查找，它是获取Bean实例上有没有指定的注解，并返回这个注解的信息。
 
 **推荐使用Bean的名称来判断Bean是否存在，这种方式可以避免提早初始化Bean，产生一些不确定的因素。**
 
