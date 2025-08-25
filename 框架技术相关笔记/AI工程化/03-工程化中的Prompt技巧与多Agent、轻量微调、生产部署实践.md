@@ -71,6 +71,10 @@ Agent的设计过程本质是状态机的管理。
   * Nested Group Chat：实现“分组讨论”再汇报的复杂协作
   * Human-in-the-loop：关键节点引入人工审核与决策
 
-### 多Agent案例
+### 多Agent案例 
+
+![多Agent示例](https://raw.githubusercontent.com/wkk1994/image-repository/main/2025-08/%E5%A4%9AAgent%E7%A4%BA%E4%BE%8B.png)  
+
+### 轻量微调方法比较
 
 > https://zhuanlan.zhihu.com/p/1895861774558951378
