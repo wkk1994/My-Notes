@@ -1,4 +1,4 @@
-# 工程化中的Prompt技巧与多Agent、轻量微调、生产部署实践
+# 工程化中的Prompt技巧与多Agent
 
 ## Prompt
 
