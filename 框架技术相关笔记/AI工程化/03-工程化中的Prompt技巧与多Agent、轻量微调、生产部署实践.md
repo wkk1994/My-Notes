@@ -46,29 +46,110 @@ CoT的概念来源于一篇论文[Chain-of-Thought Prompting Elicits Reasoning i
 * Jinja2
   一种功能强大的 Python 模板引擎，可以用于提示词工程。
 
-## Agent设计目标
+### Agent
+
+Agent 是一个能够感知环境、制定计划并自主调用工具以持续完成给定目标的软件实体；它的核心使命是把“想法”变成“结果”，而不只是回答问题。
+
+![Agent示例](https://raw.githubusercontent.com/wkk1994/image-repository/main/2025-09/screenshot-20250902-095052.png)  
+
+
+### Agent设计目标
 
 目的：构建有状态、可追踪、可控的智能体，处理复杂的多轮交互任务。
 
 ### 状态管理
 
-Agent的设计过程本质是状态机的管理。
+“状态”是Agent在某一时刻所拥有的内部上下文。
 
-* 对话状态机
-* DST概念引入
+通过状态管理可以
+* 避免Agent每次回答问题都从零开始，能延续用户对话和任务。
+* 让复杂任务分解后，Agent 可以逐步推进而不是一次性全做完。
+* 在多 Agent 系统中，不同 Agent 之间需要共享或切换状态。
+
+一个典型的AI Agent中状态管理包含：
+
+* 对话上下文：当前轮对话历史、用户意图。
+  * Dialogue State Tracking (DST)（对话状态跟踪）是 对话系统领域里的一个核心任务。
+* 任务进度：任务是否完成，当前在哪个步骤。
+* 记忆内容：长期记忆（知识、用户偏好）、短期记忆（当前任务相关信息）。
+* 环境信息：外部 API/工具返回的数据、环境变量。
+* 执行计划：已经完成的步骤 + 下一步要做的步骤。
 
 ### 上下文保持
 
-* Memory设计模式
-  * Working Memory context：工作记忆
-  * Session ID + 用户图像存储
-  * Long-term 保存所有历史的会话信息
+对话系统需要“记住”之前发生过的事情，才能进行自然的多轮交互。
 
-### Agent对话核心技术
+**Memory设计模式**
 
-* Intent Recognition + Slot Filling（槽位）：理解用户意图并提取关键信息
-   这一步重要，理解用户的意图才好做下一步动作
-* Failure Handling：失败重试、降级策略、错误兜底
+* Working Memory：工作记忆/短期记忆
+  * 特征：容量小，但随时可用。
+  * 作用：保存 当前任务/对话窗口 的上下文。
+  * 例子：
+    在 GPT 类模型里，working memory 通常就是当前 prompt 的上下文。
+    比如你说“帮我订机票” → 系统记住“目的地北京、日期明天”。
+  * 技术实现：
+    临时缓存（内存中，Redis 里，或者上下文拼接）。
+    窗口截断（Sliding Window, Recency-based）。
+* Session ID + 用户图像存储
+  * Session ID：用来区分不同用户的对话会话。
+  * 用户画像（User Profile）：存储与用户长期绑定的信息，比如：
+    偏好（常用目的地是上海，喜欢简洁回答）。
+    历史行为（上次买过演唱会票）。
+  * 作用：让对话更加 个性化，而不是每次都从零开始。
+  * 技术实现：
+    用户 ID + Profile 存储在数据库。
+    在每次会话开始时加载相关信息，注入到对话上下文。
+* Long-term Memory (长期记忆)
+  * 特征：保存所有历史会话信息，但不会每次都加载。
+  * 作用：支持长期跨会话的追踪。当需要时，可以回溯并检索历史。
+  * 技术实现：
+    向量数据库（Milvus、Pinecone、FAISS）。
+    检索增强生成（RAG）：先在长期记忆里检索，再将相关内容喂给模型。
+  * 类比：就像人类可能忘记细节，但能通过线索“回忆起来”。
+
+### 对话系统/Agent 对话管理的核心技术
+
+* Intent Recognition（意图识别） + Slot Filling（槽位）
+  理解用户意图并提取关键信息这一步重要，理解用户的意图才好做下一步动作
+  举例子：
+  ```text
+  用户：帮我订一张明天下午去上海的高铁票
+  意图：订票
+  槽位：目的地=上海，日期=明天，时间=下午，交通方式=高铁
+  ```
+* Failure Handling（异常处理）：本质是对话系统的鲁棒性保障。
+  * 失败重试：调用 API 或工具失败时，自动重试。
+  * 降级策略：模型/工具不可用时，用更简单的逻辑兜底。
+  * 错误兜底：当理解不清或执行失败时，系统要么澄清用户意图，要么给默认回复。
+
+* Conversation（生命周期管理）：如果没有生命周期管理，系统会出现“忘记上下文”或“记忆混乱”的情况。
+  * Session ID 管理：区分不同用户、不同会话。
+  * 上下文清理：防止对话上下文无限膨胀；需要定义上下文窗口策略（如保留最近 N 轮）。
+  * 多轮追踪：确保用户前后语义连贯（DST 就是为此而生）。
+  * 跨任务管理：支持在一个会话里切换任务。
+
+### 消息协议设计方法论
+
+对于对话 Agent 消息协议的设计规范/推荐：
+
+* 标准化字段：role, content, tool_calls, metadata
+  * role：消息发送方的角色（如 system、user、assistant、tool）。
+  * content：消息正文（通常是自然语言）。
+  * tool_calls：记录调用外部工具时的参数、调用目标等。
+  * metadata：附加信息（时间戳、来源、版本号）。
+* 扩展字段建议：session_id, task_id, intent, confidence
+  * session_id：标识会话，用来区分不同用户/上下文。
+  * task_id：标识单个任务，用于跟踪执行进度。
+  * intent：NLU 结果，表明用户的意图（如“订票”、“查询天气”）。
+  * confidence：对意图/解析结果的置信度（便于后续决策，比如低置信度时触发澄清）。
+* 错误码规范：使用分层方式定义通用错误类型
+  * 系统级错误（如超时、内部崩溃）。
+  * 工具级错误（TOOL_NOT_FOUND、PARAM_MISSING）。
+  * 业务级错误（如“库存不足”、“用户未认证”）。
+* 支持异步响应与超时机制
+  * 加上status用来追踪异步结果。
+
+> metadata 和 intent/confidence 有可能重叠（intent 也可以放在 metadata 里）。
 
 ## 多Agent协作机制
 
@@ -80,27 +161,78 @@ Agent的设计过程本质是状态机的管理。
 * 单点故障不影响整体运行，鲁棒性与容错性远超集中式单Agent系统。
 * 通过协商、竞争与协作机制，可实现全局优化与自适应调整。
 * 模块化设计便于系统扩展与维护，适用于大规模复杂场景。
+  新增一个 Agent 就能扩展系统能力，而不是改动一个大模型的 Prompt。
 * 在智能制造、交通、能源等工程领域，展现出更高的灵活性与可部署性。
+* 灵活的组合模式，可以通过业务需求选择不同的写照模式
+  * 层级式（Hierarchical）：一个管理 Agent 调度其他子 Agent。
+  * 对等式（Peer-to-Peer）：多个 Agent 自组织协作。
+  * 市场/拍卖机制：通过竞争选择最合适的 Agent 执行任务。
 
 ### 多Agent的使用方式
 
-* 协作模式：
-  * Group Chat：多Agent轮流发言，达成共识（常用的方式）
-  * Debate 机制：Agent间进行辩论以提升决策质量（常用的方式）
-* 通信机制：
-  * Message Passing：基于 send() / receive() 的异步消息机制
-  * 工具调用传递：Agent A 发起调用，结果由 Agent B 处理或验证
-  * 反馈循环（Feedback Loop）：Critic Agent 对输出进行评估并提出改进建议
-  * 支持 human_input_mode 实现人工干预
-* **高级定制与控制**：
-  * Customizable ConversableAgent：深度自定义Agent行为逻辑
-  * Nested Group Chat：实现“分组讨论”再汇报的复杂协作
-  * Human-in-the-loop：关键节点引入人工审核与决策
+**协作模式**
+
+* Pipeline（流水线）模式
+机制：任务按阶段分解，每个Agent负责一个阶段，输出给下一个Agent。
+特点：明确分工，职责清晰，易于调试，但单点故障可能影响整体
+例子：信息抽取 → 意图识别 → 响应生成
+
+* Coordinator-Worker（协调者-工作者）模式
+机制：主Agent负责分配任务，多个Worker Agent并行处理。
+特点：支持并行，提高效率，主Agent做整合和决策
+例子：问答系统中，主Agent拆分复杂问题，Worker分别检索资料或生成答案
+
+* Blackboard（黑板模式）
+机制：所有Agent在共享“黑板”上读写信息，协作完成任务。
+特点：高度灵活，适合复杂任务，每个Agent自主决策，基于共享信息
+例子：AI协作写作或多轮推理任务，每个Agent写入观点，其他Agent补充/修改
+
+* Group Chat（群聊模式）
+机制：多Agent轮流发言，达成共识。
+特点：不同Agent可以代表不同策略或知识背景
+例子：多角度推理
+
+* Debate（辩论机制）
+机制：Agent间进行辩论以提升决策质量。
+特点：每个Agent提出自己的立场或答案、其他Agent反驳、质疑、指出漏洞、可能有裁判Agent做最终裁定。
+例子：决策优化（选择最佳方案）
+
+在实际系统中，通常使用Group Chat + Debate组合的模式：
+1. 先 Group Chat：收集尽可能多的观点 → 知识广度
+2. 再 Debate：对这些观点进行对抗式检验 → 质量提升
+3. 最后裁决/投票：Coordinator 或评审Agent输出最终结果
+
+**通信机制**
+
+* Message Passing（直接消息传递）：基于 send() / receive() 的异步消息机制
+  常用在 Pipeline（流水线）模式、Coordinator-Worker（协调者-工作者）模式
+  技术落地：消息队列（Kafka, RabbitMQ）、内存通道（async queue）
+  优点：简单直观，延迟低；缺点：Agent之间耦合度较高。
+
+* 工具调用传递：Agent A 发起调用，结果由 Agent B 处理或验证
+* 反馈循环（Feedback Loop）：Critic Agent 或 Evaluator 对输出进行审查，并反馈改进方向
+  常用在 Debate / Self-Reflection / Critic-Actor框架
+  好处：减少幻觉，提高质量
+* 人工干预（human_input_mode）：在关键环节引入人类反馈（Human-in-the-loop）。当Agent遇到不确定/冲突 → 请求人类判断。
+  应用：审核敏感输出&多轮对话歧义澄清&业务流程中需要人工审批。
+
+**高级定制与控制**
+
+* Customizable ConversableAgent：深度自定义Agent行为逻辑
+* Nested Group Chat：实现“分组讨论”再汇报的复杂协作
+* Human-in-the-loop：关键节点引入人工审核与决策
 
 ### 多Agent案例
 
+构建一个基于角色分工的多Agent协作系统，模拟真实客服场景中跨环节协同处理用户订单问题：
+Agent A（订单专员）：查询用户订单状态（如支付、发货、退款）
+Agent B（物流专员）：获取当前物流轨迹与预计送达时间
+Agent C（客服主管）：汇总信息，生成自然、准确、一致的用户回复
+
+代码示例：[03-multi-agent.py](https://github.com/wkk1994/ai-engineering/blob/main/week01/03-multi-agent.py)
 
 ## 参考
 
 * [提示工程指南](https://www.promptingguide.ai/zh)
 * https://zhuanlan.zhihu.com/p/1895861774558951378
+* DST 和 Agent 状态管理的关系：如果 Agent 是一个 对话型 Agent（比如 Chatbot、任务型助手），那么它的状态管理就需要 用 DST 来跟踪对话槽位/意图。如果 Agent 是一个 通用任务 Agent（比如写代码的 Agent、调度机器人、自动化办公），那么它的状态管理会超越 DST，可能需要 FSM（有限状态机）、任务栈、记忆数据库等机制。
