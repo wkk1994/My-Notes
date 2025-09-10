@@ -55,3 +55,42 @@ RAG（）检索增强生成结合了传统信息检索技术和最新的生成�
 什么时候用RAG、什么时候用Fine-tuning
 朴素RAG&进阶RAG和模块化RAG
 
+## RAG评估
+
+### 检索评估
+
+* 纯检索指标：问题和结果的关系
+  * 精准率
+  * 召回率
+  * F1分数
+
+* 检索&重排指标
+  * 平均倒数排名
+  * 平均精确率均值
+  * 归一化折损累计增益
+
+### 生成评估
+
+生成结果评估
+- Correctness：比较生成的答案与标准答案
+- Relevance：答案是否与 query 相关
+- Logic：答案逻辑性
+- Style：生成风格评估，长短、语气等
+
+生成阶段评估（除了第一个会用到，其他的也不会用到，即使用了也没法解决？）
+- Fathfulness（Answer to Context Retrieved）
+- 噪声鲁棒性 (Noise Robustness) 
+- 否定拒绝 (Negative Rejection)
+- 信息整合 (Info Integration) 
+- 反事实鲁棒性 (Counterfactual Robustness)
+
+## RAG实现
+
+* QAnything 代码最简单，其中用了LangChain实现
+* Llamaindex 代码工整，可以作为参考自己实现RAG功能
+
+QAnything、Dify、Ragflow
+Llamaindex、LangChain
+
+> FastAPI：python web框架
+> Gradio：python生成页面
