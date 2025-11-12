@@ -313,8 +313,67 @@ RAG+KG错误传播的主要来源有两个：RAG 生成幻觉答案和KG 中存�
 
 ## 评估指标
 
+RAG的评估可以从检索阶段、生成阶段、端到端三个阶段进行划分，每个阶段都有对应的经典指标和新兴指标与开源/商用工具。
+
+### 检索阶段
+
+检索节点主要是衡量召回的文档是否相关、完整。
+
+| 指标                                               | 含义                  | 常见用途         |
+| ------------------------------------------------ | ------------------- | ------------ |
+| **Recall@K**                                     | 前 K 个检索结果中包含正确文档的比例 | 检查召回覆盖率      |
+| **Precision@K**                                  | 前 K 个结果中真正相关的比例     | 检查召回精度       |
+| **MRR (Mean Reciprocal Rank)**                   | 正确文档出现位置的倒数平均       | 关注首条结果的质量    |
+| **nDCG (Normalized Discounted Cumulative Gain)** | 综合考虑相关性和排序位置        | 适用于多相关文档场景   |
+| **Hit Rate / Top-K Accuracy**                    | 前 K 个结果中命中目标比例      | 简单直观的检索准确性指标 |
+| **Embedding Similarity**                         | 查询与结果的语义相似度         | 检查向量检索效果     |
+
+### 生成阶段
+
+衡量答案的正确性、流畅度和事实一致性。
+
+| 指标                                     | 含义                  | 常见用途                 |
+| -------------------------------------- | ------------------- | -------------------- |
+| **ROUGE / BLEU**                       | 与参考答案的词面相似度         | 通用文本质量评估             |
+| **BERTScore / Cosine Similarity**      | 嵌入层语义相似度            | 更关注语义一致性             |
+| **Faithfulness / Factuality**          | 输出是否忠实于检索文档         | 检测幻觉（Hallucination）率 |
+| **Context Recall / Context Precision** | 回答是否充分利用检索内容        | 评估模型是否“读懂”上下文        |
+| **Answer Consistency**                 | 同一问题多次问答的一致性        | 稳定性检测                |
+| **Human Evaluation**                   | 专家人工评分（正确性、流畅度、相关性） | 高质量标准验证              |
 
 
+### 端到端
+
+衡量整个 RAG pipeline 的最终表现。
+
+| 指标                                  | 说明             |
+| ----------------------------------- | -------------- |
+| **End-to-End QA Accuracy**          | 模型最终回答是否正确     |
+| **RAG-F1 (RAG Precision + Recall)** | 结合检索与生成质量的复合指标 |
+| **Latency / Throughput**            | 系统响应时间与负载能力    |
+| **Coverage**                        | 检索到知识点覆盖范围     |
+| **Hallucination Rate**              | 输出中出现虚假信息的比例   |
+
+### 常见评估工具
+
+**RAGAS**
+
+[RAGAS](https://docs.ragas.io/en/stable/concepts/metrics/)一个专为评估 Retrieval Augmented Generation (RAG) pipelines 而设计的开源框架，主要聚焦在前两阶段（检索阶段 + 生成阶段），评估RAG检索和生成阶段的语义一致性、上下文利用和事实忠实度。
+
+| 层级         | 说明         | 是否被 RAGAS 评估 | 典型指标        | 说明      |
+| -------------- | -------- | ------------ | --------------- | ---- |
+| **🔹 检索层（Retrieval Level）**  | 衡量文档召回的相关性与充分性    | ✅ **部分覆盖**   | - Context Recall(上下文召回性)<br>- Context Precision（上下文相关性）       | RAGAS 能评估检索到的上下文是否覆盖答案、是否与问题相关（但不评估索引性能、排序算法等底层检索性能） |
+| **🔹 生成层（Generation Level）** | 衡量生成内容的忠实度与正确性    | ✅ **核心覆盖**   | - Faithfulness（忠实度）<br>- Answer Relevance（答案相关性）<br>- Answer Correctness（答案正确性）         | RAGAS 的重点层，用于判断模型输出是否忠实于检索内容、是否回答了问题、是否事实正确       |
+
+**Trulens**
+
+TruLens 是一个端到端的RAG应用评估与监控框架，覆盖了RAG的三个阶段。
+
+| 层级                           | 说明               | 是否覆盖 | 典型指标                                            | 示例               |
+| ---------------------------- | ---------------- | ---- | ----------------------------------------------- | ---------------- |
+| **🔹 检索层（Retrieval Level）**  | 评估检索结果是否相关       | ✅    | `context_relevance`、`context_precision`         | 检索到的上下文是否与问题高度相关 |
+| **🔹 生成层（Generation Level）** | 评估生成答案是否正确、忠实、相关 | ✅    | `answer_relevance`、`faithfulness`、`correctness` | 回答是否忠于上下文、不胡编乱造  |
+| **🔹 系统层（System Level）**     | 监控性能、延迟、成本等      | ✅    | `latency`、`cost`、`token_usage`、`feedback_score` | 对系统运行与资源消耗的端到端监控 |
 
 
 > 知识图谱的生成和维护是个问题，目前没有好的生成方式，复杂关系生成可能有问题，还需要人工维护？
